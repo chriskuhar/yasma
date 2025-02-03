@@ -14,28 +14,28 @@ export default function Home() {
     //redirect('/login');
   }
   return (
-      <div className="flex flex-col h-screen w-screen bg-blue-700"  >
+      <div className="flex flex-col h-screen w-screen bg-blue-100"  >
         {/* Header */}
-        <header className="w-screen h-24 bg-purple-500">Yasma Mail</header>
+        <header className="w-screen p-3 h-24 bg-blue-100"></header>
         {/* outer container for LHS mailbox list and main content */}
-        <div className="flex w-screen h-full px-3 py-0 bg-pink-400">
+        <div className="flex w-screen h-full px-3 py-0">
         {/* LHS mailbox list */}
-          <div className="flex-grow-0 flex-shrink-0 w-40 h-full bg-amber-600">
+          <div className="flex-grow-0 flex-shrink-0 pr-3 w-52 h-full bg-blue-100">
             <MailboxList />
           </div>
           {/* main content, list of messages on top of rendered message */}
           <div className="flex flex-col h-ful w-full b-green-700">
             {/* List of message subjects */}
-            <div className="basis-1/2 bg-yellow-100">
+            <div className="basis-1/2">
               <MessageList />
             </div>
             {/* Content of message */}
-            <div className="basis-1/2  bg-blue-200">
+            <div className="basis-1/2 pt-3 bg-white">
               <MessageView />
             </div>
           </div>
         </div>
-        <footer className="bg-gray-800 w-screen h-24"></footer>
+        <footer className="w-screen h-24"></footer>
       </div>
   )
       ;

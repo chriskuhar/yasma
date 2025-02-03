@@ -49,9 +49,9 @@ export function MessageList() {
           <tbody>
           {metadata.current.map((message, index) => (
               <tr key={index} onClick={() => handleSetCurrentMessage(message)}>
-                <td className="cursor-pointer">{formatFrom(message.From)}</td>
-                <td className="cursor-pointer">{message.Subject}</td>
-                <td className="cursor-pointer">{message.DateTime}</td>
+                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{formatFrom(message.From)}</td>
+                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{message.Subject}</td>
+                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{message.DateTime}</td>
               </tr>
           ))}
           </tbody>
