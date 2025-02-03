@@ -1,6 +1,6 @@
-YASMA Yet Another Social Media App
+### YASMA, Yet Another Social Media App
 
-Here is the difference, "YOU" own the data.
+Here is the difference, **YOU** own the data.
 
 The concept is, this app is a mail reader with a feature to view only posts.  A
 Post is an email CC'd to a user created group of friends with a special tag so the
@@ -10,3 +10,8 @@ is a unique identifier which helps aggregate messages and are contained in an X-
 be used to consolidate messages to one post and a list of replies. 
 
 This is a work in progress and development of the mail reader is currently in development.
+
+There are two directories, 
+
+* yasma: NestJS API, React for auth state management
+* yasma-client: React / Next.js email reading client (at this point)
