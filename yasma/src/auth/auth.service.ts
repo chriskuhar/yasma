@@ -38,7 +38,7 @@ type Web = {
 export class AuthService {
   constructor(private readonly redisService: RedisService) {}
   /**
-   * Reads previously authorized credentials from the save file.
+   * Reads previously authorized credentials from Redis record.
    *
    * @return {Promise<OAuth2Client|null>}
    */
@@ -46,7 +46,6 @@ export class AuthService {
     uuid: string = null,
   ): Promise<OAuth2Client | null> {
     try {
-      //const buff: Buffer<ArrayBufferLike> = await fsp.readFile(TOKEN_PATH);
       const result = await this.redisService.getKey(uuid);
       if (!result) {
         return null;
@@ -65,7 +64,7 @@ export class AuthService {
   }
 
   /**
-   * Serializes credentials to a file compatible with GoogleAuth.fromJSON.
+   * Serializes credentials to a Redis record compatible with GoogleAuth.fromJSON.
    *
    * @param {OAuth2Client} client
    * @return {Promise<void>}
