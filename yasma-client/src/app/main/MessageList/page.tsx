@@ -23,7 +23,6 @@ export function MessageList() {
   }, [curMailbox]);
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
-    console.log(`XDEBUG handleSetCurrentMessage: ${message.Subject}`);
     dispatch(setCurrentMessage(message));
   }
   const formatFrom = (fromStr: string) => {
@@ -39,7 +38,8 @@ export function MessageList() {
         <table className="w-full">
           <thead>
           {metadata.current.length > 0 &&
-              <tr>
+              <tr className="bg-white">
+                  <th>Message ID</th>
                   <th>From</th>
                   <th>Subject</th>
                   <th>Date</th>
@@ -49,9 +49,10 @@ export function MessageList() {
           <tbody>
           {metadata.current.map((message, index) => (
               <tr key={index} onClick={() => handleSetCurrentMessage(message)}>
-                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{formatFrom(message.From)}</td>
-                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{message.Subject}</td>
-                <td className={`cursor-pointer ${index%2 ? 'bg-white' : 'bg-blue-50'}`}>{message.DateTime}</td>
+                <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{message.MessageID}</td>
+                <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatFrom(message.From)}</td>
+                <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{message.Subject}</td>
+                <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{message.DateTime}</td>
               </tr>
           ))}
           </tbody>

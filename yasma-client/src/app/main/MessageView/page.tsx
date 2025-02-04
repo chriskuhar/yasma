@@ -10,7 +10,6 @@ export function MessageView() {
   const curMessage = useSelector((state : any) => state?.mailbox?.currentMessage);
   let  message : React.RefObject<Message> = useRef(null);
   useEffect(() => {
-    console.log(`XDEBUG Hello ${JSON.stringify(curMessage)}`);
     async function fetchData(messageID: string) {
       const result = await getMessage(messageID);
       message.current = messageRender(result);
