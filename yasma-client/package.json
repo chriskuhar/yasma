@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@types/node-jose": "^1.1.13",
     "base64-js": "^1.5.1",
+    "date-fns": "^4.1.0",
     "jose": "^5.9.6",
     "next": "15.1.1",
     "react": "^19.0.0",
