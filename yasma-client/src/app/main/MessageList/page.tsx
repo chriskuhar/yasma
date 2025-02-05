@@ -1,24 +1,22 @@
 'use client'
 import React, {useEffect, useRef, useState} from "react";
 import {ApiResult, MessageMetaData} from "@/types/mbox";
-import { ListMessages } from "@/services/api/api";
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentMessage } from "@/features/mail/mailboxSlice";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
+import useApi from "@/hooks/UseApi";
 
 export function MessageList() {
   const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox);
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
-  //let metadata : MessageMetaData[] = []
+  const { listMessages } = useApi();
   const dispatch = useDispatch()
-  //let  metadata : React.RefObject<MessageMetaData[]> = useRef([]);
-  //let  metadata : MessageMetaData[] = [];
   const [metadata, setMetadata] = useState([]);
   useEffect(() => {
     async function fetchData(mboxName: string) {
-      const result: ApiResult = await ListMessages(mboxName);
+      const result: ApiResult = await listMessages(mboxName);
       if ( result?.data ) {
         const messageList: MessageMetaData[] = result.data;
         const data: MessageMetaData[] =(messageList.length) ? result.data : [];

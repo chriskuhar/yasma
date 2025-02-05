@@ -1,8 +1,8 @@
 'use client'
-import { ListMbox } from "@/services/api/api";
 import {ApiResult, Mbox} from "@/types/mbox";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux'
+import UseApi from "@/hooks/UseApi";
 
 import { setCurrentMailbox } from "@/features/mail/mailboxSlice";
 
@@ -10,10 +10,10 @@ export function MailboxList() {
   const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox)
   const dispatch = useDispatch()
   const [mailboxes, setMailboxes] = useState([]);
+  const { listMbox } = UseApi();
   useEffect(() => {
      async function fetchData() {
-      //const result : Mbox[] = await ListMbox();
-     const result: ApiResult = await ListMbox();
+     const result: ApiResult = await listMbox();
       const mboxes = (result?.data && result.data.length) ? result.data : [];
       setMailboxes(mboxes);
     }

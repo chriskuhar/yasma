@@ -1,12 +1,12 @@
 'use client';
 import { redirect } from "next/navigation";
-import { isAuthenticated, ListMbox } from "@/services/api/api";
 import { MailboxList } from "@/app/main/MailboxList/page";
-import {MessageList} from "@/app/main/MessageList/page";
-import {MessageView} from "@/app/main/MessageView/page";
-import {useSelector} from "react-redux";
+import { MessageList } from "@/app/main/MessageList/page";
+import { MessageView } from "@/app/main/MessageView/page";
+import useApi from "@/hooks/UseApi";
 
 export default function Home() {
+  const { isAuthenticated } = useApi();
   const testval = isAuthenticated();
   console.log(testval);
   if (isAuthenticated() === false) {
