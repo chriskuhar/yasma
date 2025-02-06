@@ -11,9 +11,9 @@ export type MboxPayload = {
 export type Mbox = {
   id: string;
   name: string;
-  type: MboxType;
-  messageListVisibility: MessageListVisibility;
-  labelListVisibility: LabelListVisibility;
+  type?: MboxType;
+  messageListVisibility?: MessageListVisibility;
+  labelListVisibility?: LabelListVisibility;
 }
 
 export enum MboxType {

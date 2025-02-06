@@ -10,7 +10,7 @@ function useMessageListFormatting() {
   }
 
   const formatMessageSubject = (fromStr: string) => {
-    if(fromStr.length > MAX_SUBJECT_LENGTH){
+    if(fromStr?.length > MAX_SUBJECT_LENGTH){
       return `${fromStr.substring(0, MAX_SUBJECT_LENGTH)}...`;
     }
     return fromStr;

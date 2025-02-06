@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentMessage } from "@/features/mail/mailboxSlice";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
-import useApi from "@/hooks/UseApi";
+import UseApi from "@/hooks/UseApi";
 
 export function MessageList() {
   const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox);
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
-  const { listMessages } = useApi();
+  const { listMessages } = UseApi();
   const dispatch = useDispatch()
   const [metadata, setMetadata] = useState([]);
   useEffect(() => {
@@ -29,13 +29,6 @@ export function MessageList() {
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
     dispatch(setCurrentMessage(message));
-  }
-  const formatFrom = (fromStr: string) => {
-    const bits = fromStr.split('<');
-    if(bits.length > 1){
-      return bits[0];
-    }
-    return fromStr;
   }
 
   return (

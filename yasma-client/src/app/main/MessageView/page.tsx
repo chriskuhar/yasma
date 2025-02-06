@@ -1,15 +1,13 @@
-'use client'
-
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import useMessageFormat from "@/hooks/UseMessageFormat";
-import useApi from "@/hooks/UseApi";
+import UseApi from "@/hooks/UseApi";
 
 export function MessageView() {
   const curMessage = useSelector((state : any) => state?.mailbox?.currentMessage);
   const { messageRender } = useMessageFormat();
   const [ message, setMessage ] = useState(null);
-  const { getMessage } = useApi();
+  const { getMessage } = UseApi();
   useEffect(() => {
     async function fetchData(messageID: string) {
       const result = await getMessage(messageID);

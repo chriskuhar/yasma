@@ -3,8 +3,8 @@ import {SubmitHandler} from "react-hook-form"
 import {useForm} from 'react-hook-form'
 import {authenticate} from "@/services/api/api"
 import {Api} from '@/types/api'
-import {useState} from "react";
 import {redirect} from "next/navigation";
+import UseApi from "@/hooks/UseApi";
 
 interface IFormInput {
   email: string
@@ -13,6 +13,7 @@ interface IFormInput {
 
 export default function Login() {
   const {register, handleSubmit} = useForm<IFormInput>()
+  const { authenticate } = UseApi();
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     console.log(data)
     const result : Api = await authenticate(data.email, data.password)

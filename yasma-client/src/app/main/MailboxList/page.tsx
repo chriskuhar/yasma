@@ -5,30 +5,33 @@ import { useDispatch, useSelector } from 'react-redux'
 import UseApi from "@/hooks/UseApi";
 
 import { setCurrentMailbox } from "@/features/mail/mailboxSlice";
+import useFilterMailboxes from "@/hooks/UseFilterMailboxes";
 
 export function MailboxList() {
   const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox)
   const dispatch = useDispatch()
   const [mailboxes, setMailboxes] = useState([]);
+  const [selectedMailboxIdx, setSelectedMailboxIdx] = useState(2);
   const { listMbox } = UseApi();
+  const { filterMailboxes } = useFilterMailboxes();
   useEffect(() => {
      async function fetchData() {
      const result: ApiResult = await listMbox();
-      const mboxes = (result?.data && result.data.length) ? result.data : [];
-      setMailboxes(mboxes);
+      const mboxes: Mbox[] = (result?.data && result.data.length) ? result.data : [];
+      setMailboxes(filterMailboxes(mboxes));
     }
     fetchData();
   }, []);
 
-  const handleSetCurrentMailbox = (_curMailbox: Mbox) => {
+  const handleSetCurrentMailbox = (_curMailbox: Mbox, index: number) => {
+    setSelectedMailboxIdx(index);
     dispatch(setCurrentMailbox(_curMailbox));
   }
   return (
       <div className="overflow-auto h-full">
-        <h1>Mailbox {curMailbox?.name}</h1>
         <ul>
           {mailboxes.map((mailbox, index) => (
-              <li key={index} onClick={() => handleSetCurrentMailbox(mailbox)} className="cursor-pointer">{mailbox.name}</li>
+              <li key={index} onClick={() => handleSetCurrentMailbox(mailbox, index)} className={`cursor-pointer ${index == selectedMailboxIdx ? 'font-bold' : ''}`}>{mailbox.name}</li>
           ))}
         </ul>
       </div>
