@@ -1,14 +1,12 @@
 'use client'
 import {ApiResult, Mbox} from "@/types/mbox";
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import UseApi from "@/hooks/UseApi";
-
 import { setCurrentMailbox } from "@/features/mail/mailboxSlice";
 import useFilterMailboxes from "@/hooks/UseFilterMailboxes";
 
 export function MailboxList() {
-  const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox)
   const dispatch = useDispatch()
   const [mailboxes, setMailboxes] = useState([]);
   const [selectedMailboxIdx, setSelectedMailboxIdx] = useState(2);

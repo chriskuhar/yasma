@@ -1,14 +1,15 @@
 'use client'
-import React, {useEffect, useRef, useState} from "react";
-import {ApiResult, MessageMetaData} from "@/types/mbox";
+import React, { useEffect, useState } from "react";
+import { ApiResult, MessageMetaData } from "@/types/mbox";
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentMessage } from "@/features/mail/mailboxSlice";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
 import UseApi from "@/hooks/UseApi";
+import { AppStore } from "@/lib/store";
 
 export function MessageList() {
-  const curMailbox = useSelector((state : any) => state?.mailbox?.currentMailbox);
+  const curMailbox = useSelector((state : AppStore) => state?.mailbox?.currentMailbox);
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
   const { listMessages } = UseApi();
@@ -37,9 +38,9 @@ export function MessageList() {
           <thead>
           {metadata.length > 0 &&
               <tr className="bg-white">
-                  <th>From</th>
-                  <th>Subject</th>
-                  <th>Date</th>
+                  <th className="w-40">From</th>
+                  <th className="w-auto">Subject</th>
+                  <th className="w-40">Date</th>
               </tr>
           }
           </thead>
