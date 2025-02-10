@@ -18,7 +18,8 @@ export const mailboxSlice = createSlice({
       ReplyTo: '',
       DateTime: '',
       Subject: '',
-    }
+    },
+    composeModalDialogOpen: false,
   },
   reducers: {
     setCurrentMailbox: (state, mailbox : MboxPayload) => {
@@ -27,9 +28,12 @@ export const mailboxSlice = createSlice({
     setCurrentMessage: (state, message : MessageMetaDataPayload) => {
       state.currentMessage = <MessageMetaData>message.payload
     },
+    setComposeModalDialogOpen: (state, open : boolean) => {
+      state.composeModalDialogOpen = <boolean>open.payload
+    },
   },
 })
 
-export const { setCurrentMailbox, setCurrentMessage } = mailboxSlice.actions
+export const { setCurrentMailbox, setCurrentMessage, setComposeModalDialogOpen } = mailboxSlice.actions
 
 export default mailboxSlice.reducer
