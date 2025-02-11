@@ -11,6 +11,9 @@ import { AppStore } from "@/lib/store";
 import { useDispatch } from "react-redux";
 import { setComposeModalDialogOpen } from "@/features/mail/mailboxSlice";
 import { ComposeEditor } from "@/app/components/ComposeEditor";
+import {EditorContent, useEditor} from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import {ComposeEditorToolbar} from "@/app/components/ComposeEditorToolbar";
 
 // define your extension array
 
@@ -18,14 +21,18 @@ export function ComposeModalDialog() {
   const curOpenState = useSelector((state : AppStore) => state?.mailbox?.composeModalDialogOpen);
   const dispatch = useDispatch()
   const handleClose = () => dispatch(setComposeModalDialogOpen(false));
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: '<p>Hello World! 🌎️</p>',
+  })
+  if(!editor) return null;
 
   return (
-      <div className="flex flex-col ">
-        <Dialog open={curOpenState} handler={handleClose} size="lg">
-          <DialogHeader>New Message</DialogHeader>
-          <DialogBody>
-            <form className="mt-8 mb-2">
-              <div className="mb-1 flex flex-col gap-1">
+      <div>
+        <Dialog open={curOpenState} handler={handleClose} size="md" className={`h-1/2 flex flex-col`}>
+          <DialogBody className={`grow overflow-y-auto`}>
+            <form className="mt-0 mb-2">
+              <div className="flex flex-col h-full">
                 <Input
                     label="To:"
                     size="md"
@@ -44,11 +51,16 @@ export function ComposeModalDialog() {
                       className: "before:content-none after:content-none",
                     }}
                 />
-                <ComposeEditor/>
+                <div className="mb-0 mt-9 ml-5 mr-5 flex flex-col h-80">
+                  <ComposeEditorToolbar editor={editor}/>
+                  <div className="overflow-y-auto">
+                    <EditorContent editor={editor} />
+                  </div>
+                </div>
               </div>
             </form>
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className={`flex-none`}>
             <Button
                 variant="text"
                 color="red"

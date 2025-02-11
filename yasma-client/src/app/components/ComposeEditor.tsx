@@ -2,7 +2,6 @@ import StarterKit from "@tiptap/starter-kit";
 import { useEditor, EditorContent } from '@tiptap/react'
 import { ComposeEditorToolbar } from "@/app/components/ComposeEditorToolbar";
 
-
 type TiptapProps = {
     content?: string
     editable?: boolean
@@ -26,12 +25,15 @@ export function ComposeEditor() {
     content: '<p>Hello World! 🌎️</p>',
   })
   if(!editor) return null;
-  console.log(`XDEBUG Compose Editor`);
 
   return (
-      <>
-        <ComposeEditorToolbar editor={editor} />
-        <EditorContent editor={editor} />
-      </>
+      <div className={`mt-9 ml-5 mr-5 flex flex-col`}>
+        <div className="flex-none">
+          <ComposeEditorToolbar editor={editor} />
+        </div>
+        <div className={`grow overflow-auto`}>
+          <EditorContent editor={editor} />
+        </div>
+      </div>
   );
 }

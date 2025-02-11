@@ -1,5 +1,4 @@
 .ToolbarContainer {
-    background: #c0c0c0;
     border-bottom: 2px solid #999999;
     border-radius: 10px 10px 0 0;
     display: flex;
@@ -22,7 +21,7 @@
 }
 
 .icon {
-    background: #ffffff;
+    background: lightgrey;
     border-radius: 5px;
     width: 24px;
     height: 24px;
@@ -31,6 +30,7 @@
     align-items: center;
     color: #333333;
     font-weight: bold;
+    margin: 0 3px 0
 }
 
 .Toolbar:disabled .icon {

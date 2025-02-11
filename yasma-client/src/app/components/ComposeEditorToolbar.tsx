@@ -11,13 +11,9 @@ import {
     RiItalic,
     RiStrikethrough,
     RiCodeSSlashLine,
-    RiEmotionLine,
     RiH1,
     RiH2,
     RiH3,
-    RiH4,
-    RiH5,
-    RiH6,
     RiParagraph,
     RiListOrdered,
     RiListUnordered,
@@ -47,7 +43,7 @@ export function ComposeEditorToolbar({ editor } : ToolbarProps) {
     })
 
   return (
-      <div className={`${styles.ToolbarContainer} ${!inView ? "styles.sticky" : ""}`} ref={observe}>
+      <div className={`${styles.ToolbarContainer} ${!inView ? "styles.sticky" : ""} flex-none`} ref={observe}>
           <div className="flex justify-center align-center">
               <div className={styles.icon} onClick={() => editor.chain().focus().toggleBold().run()}>
                   <RiBold/>
