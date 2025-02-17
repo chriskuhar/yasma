@@ -44,6 +44,12 @@
     cursor: pointer;
 }
 
+.iconActive {
+    background: #333333;
+    color: #ffffff;
+    cursor: pointer;
+}
+
 .divider {
     border: none;
     border-left: 2px solid rgba(#333333, 0.2);

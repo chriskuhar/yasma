@@ -10,22 +10,33 @@ import { useSelector } from "react-redux";
 import { AppStore } from "@/lib/store";
 import { useDispatch } from "react-redux";
 import { setComposeModalDialogOpen } from "@/features/mail/mailboxSlice";
-import { ComposeEditor } from "@/app/components/ComposeEditor";
-import {EditorContent, useEditor} from "@tiptap/react";
+import { Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import {ComposeEditorToolbar} from "@/app/components/ComposeEditorToolbar";
+import { ComposeEditorToolbar } from "@/app/components/ComposeEditor/ComposeEditorToolbar";
+import Paragraph from '@tiptap/extension-paragraph'
+
 
 // define your extension array
 
 export function ComposeModalDialog() {
   const curOpenState = useSelector((state : AppStore) => state?.mailbox?.composeModalDialogOpen);
   const dispatch = useDispatch()
-  const handleClose = () => dispatch(setComposeModalDialogOpen(false));
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: '<p>Hello World! 🌎️</p>',
+  const handleClose = () => {
+    dispatch(setComposeModalDialogOpen(false));
+    editor.destroy();
+  }
+  const editor = new Editor({
+    extensions: [StarterKit, Paragraph],
+    content: '<p>Hello World <b>Bold</b> Today! 🌎️</p>',
   })
   if(!editor) return null;
+
+  // TODO get HTML
+  // editor.getHTML()
+  // TODO cleanup
+  //editor.destroy()
+
+
 
   return (
       <div>

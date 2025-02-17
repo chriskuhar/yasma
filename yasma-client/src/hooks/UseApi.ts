@@ -1,5 +1,5 @@
-import {ApiInterface} from "@/types/api";
-import {ApiResult, Message} from "@/types/mbox";
+import { ApiInterface } from "@/types/api";
+import { ApiResult, Message } from "@/types/mbox";
 
 function useApi() {
 

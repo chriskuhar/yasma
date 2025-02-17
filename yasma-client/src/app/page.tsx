@@ -4,7 +4,7 @@ import { MailboxList } from "@/app/main/MailboxList/page";
 import { MessageList } from "@/app/main/MessageList/page";
 import { MessageView } from "@/app/main/MessageView/page";
 import { Header } from "@/app/main/Header/page";
-import { ComposeModalDialog } from "@/app/components/ComposeModalDialog";
+import { ComposeModalDialog } from "@/app/components/ComposeEditor/ComposeModalDialog";
 import useApi from "@/hooks/UseApi";
 
 export default function Home() {

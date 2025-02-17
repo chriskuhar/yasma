@@ -12,7 +12,6 @@ function setLink(editor: Editor) {
     // empty
     if (url === '') {
         editor.chain().focus().extendMarkRange('link').unsetLink().run()
-
         return
     }
 
