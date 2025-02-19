@@ -1,17 +1,8 @@
 'use client'
 import styles from './Toolbar.module.css';
-import React, {useCallback, useState} from 'react';
-import classNames from 'classnames';
+import React from 'react';
 import { useInView } from 'react-cool-inview';
 import { ToolbarProps } from '@/types/composer';
-import {
-    RiDoubleQuotesL,
-    RiSeparator,
-    RiTextWrap,
-    RiFormatClear,
-    RiArrowGoBackLine,
-    RiArrowGoForwardLine,
-} from 'react-icons/ri'
 
 import { BoldButton } from '@/app/components/ComposeEditor/Controls/BoldButton';
 import { ItalicButton } from '@/app/components/ComposeEditor/Controls/ItalicButton';
