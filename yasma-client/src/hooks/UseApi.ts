@@ -1,9 +1,15 @@
 import { ApiInterface } from "@/types/api";
 import { ApiResult, Message } from "@/types/mbox";
+import useMessageFormat from "@/hooks/UseMessageFormat";
+const { stringToB64 } = useMessageFormat();
 
 function useApi() {
 
   const BASE_URL = 'http://localhost:3001'
+  const erroredApiResult = {
+    data: null,
+    error: 'Unknown error occurred.',
+  };
 
   const testApi = async () : Promise<ApiInterface> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/testRedisKey`, 'GET')
@@ -24,7 +30,7 @@ function useApi() {
     if(result) {
       return result as ApiResult;
     }
-    return [];
+    return erroredApiResult
   }
 
   const isAuthenticated = (): boolean | string => {
@@ -36,11 +42,33 @@ function useApi() {
     if(result) {
       return result as ApiResult;
     }
-    return [];
+    return erroredApiResult;
   }
 
   const getMessage = async (messageID: string): Promise<Message> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message/${messageID}`, 'GET')
+    if(result) {
+      try {
+        if( result.data ) {
+          return result.data;
+        }
+        return {};
+      }
+      catch(error) {
+        console.log(error);
+      }
+      return result.data as Message;
+    }
+    return [];
+  }
+
+  const newMessage = async (message: string, recipient: string, subject: string): Promise<Message> => {
+    const data = {
+      recipient,
+      subject,
+      message: stringToB64(message),
+    }
+    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message`, 'PUT', data)
     if(result) {
       try {
         if( result.data ) {
@@ -71,11 +99,10 @@ function useApi() {
       url,
       method,
     }
-    const headers = new Headers({ 'Content-Type': 'application/json' });
-    options.headers = headers;
+    options.headers = new Headers({ 'Content-Type': 'application/json' });
     const token = getAuthToken();
     if(token) {
-      headers.append('Authorization', `Bearer ${token}`);
+      options.headers.append('Authorization', `Bearer ${token}`);
     }
 
     switch (method) {
@@ -100,7 +127,7 @@ function useApi() {
     }
     return result;
   };
-  return { getMessage, listMessages, listMbox, authenticate, isAuthenticated };
+  return { getMessage, newMessage, listMessages, listMbox, authenticate, isAuthenticated };
 
 }
 export default useApi;

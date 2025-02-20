@@ -40,7 +40,27 @@ function useMessageFormat() {
     return result;
   }
 
-  return { messageRender };
+  const stringToB64 = (htmlData: string): string => {
+    let result: string = '';
+    try {
+      const byteArray: Uint8Array = stringToByteArray(htmlData);
+      result = base64js.fromByteArray(byteArray);
+    }
+    catch(error) {
+      console.log(error);
+    }
+    return result;
+  }
+
+  const stringToByteArray = (str: string): Uint8Array  => {
+  const byteArray = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    byteArray[i] = str.charCodeAt(i);
+  }
+  return byteArray;
+}
+
+  return { messageRender, stringToB64 };
 }
 
 export default useMessageFormat;

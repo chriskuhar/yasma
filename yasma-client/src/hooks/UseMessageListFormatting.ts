@@ -2,6 +2,7 @@
 function useMessageListFormatting() {
   const MAX_SUBJECT_LENGTH = 128;
   const formatMessageFrom = (fromStr: string) => {
+    if(!fromStr) return '';
     const bits = fromStr.split('<');
     if(bits.length > 1){
       return bits[0];
