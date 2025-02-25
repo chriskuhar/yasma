@@ -68,7 +68,7 @@ function useApi() {
       subject,
       message: stringToB64(message),
     }
-    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message`, 'PUT', data)
+    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message`, 'POST', data)
     if(result) {
       try {
         if( result.data ) {

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createClient } from 'redis';
+import { SessionObject } from "../types/SessionObject";
 //import type { RedisClientType } from 'redis';
 
 export type RedisClientConnection = ReturnType<typeof createClient>;
@@ -13,8 +14,8 @@ export class RedisService {
           .on('connect', () => {console.log('Successfully connected to redis')})
           .on('error', (err) => {console.error('Error connecting to redis', err)});
       this.client.connect();
-    } catch(err) {
-      console.log(err);
+    } catch(error) {
+      process.stdout.write(`${JSON.stringify(error)} ${new Error().stack}`);
     }
   }
 
@@ -24,7 +25,7 @@ export class RedisService {
     try {
       data = await this.client.get(key);
     } catch (error) {
-      console.log(error);
+      process.stdout.write(`${JSON.stringify(error)} ${new Error().stack}`);
     }
     return data;
   }
@@ -39,9 +40,21 @@ export class RedisService {
         this.client.expire(key, ttl);
       }
     } catch (error) {
-      console.log(error);
+      process.stdout.write(`${JSON.stringify(error)} ${new Error().stack}`);
       return false;
     }
     return true;
+  }
+
+  async getLoggedInUserEmail(key: string): Promise<string | null> {
+    let result = null;
+    try {
+      const data: string = await this.getKey(key);
+      const sessionObj: SessionObject = JSON.parse(data);
+      result = sessionObj.email || null;
+    } catch (error) {
+      process.stdout.write(`${JSON.stringify(error)} ${new Error().stack}`);
+    }
+    return result;
   }
 }

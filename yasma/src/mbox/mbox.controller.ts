@@ -1,5 +1,9 @@
-import {Controller, Get, Param, Post, Req} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Req} from '@nestjs/common';
 import { MboxService } from "./mbox.service";
+import {Message} from "../types/message";
+import {LoginDto} from "../auth/auth.dto";
+import {SendMessageDto} from "./mbox.dto";
+import {ResultApi} from "../types/mbox";
 
 @Controller('/api/mbox')
 export class MboxController {
@@ -32,11 +36,25 @@ export class MboxController {
     return await this.mboxService.mboxListMessages(token, mbox);
   }
 
+  @Post('/message')
+  async newMboxMessages(
+    @Body() sendMessageDto: SendMessageDto,
+    @Req() req: Request,
+  ): Promise<ResultApi> {
+    const authHeader: string = req.headers['authorization'];
+    const bits: string[] = authHeader.split(' ');
+    let token: string | null = null;
+    if (bits.length > 1) {
+      token = bits[1];
+    }
+    return await this.mboxService.mboxNewMessage(token, sendMessageDto);
+  }
+
   @Get('/message/:messageId')
   async getMboxMessage(
     @Param('messageId') messageId: string,
     @Req() req: Request,
-  ): Promise<string> {
+  ): Promise<Message> {
     const authHeader: string = req.headers['authorization'];
     const bits: string[] = authHeader.split(' ');
     let token: string | null = null;

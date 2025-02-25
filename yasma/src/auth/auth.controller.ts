@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthI } from '../types/auth';
+import { LoginDto } from "./auth.dto";
 
 @Controller('/api')
 export class AuthController {
@@ -9,7 +10,15 @@ export class AuthController {
   ) {}
 
   @Post('/auth')
-  async getAuth(): Promise<AuthI> {
-    return await this.authService.getAuth();
+  async getAuth(
+      @Body() loginDto: LoginDto,
+  ): Promise<AuthI> {
+    if (loginDto.email) {
+      return await this.authService.getAuth(loginDto.email);
+    } else {
+      return new Promise<AuthI>((resolve) => {
+        resolve({ error: 'Email Required' });
+      });
+    }
   }
 }
