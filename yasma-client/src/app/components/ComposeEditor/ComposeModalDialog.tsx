@@ -13,10 +13,7 @@ import { setComposeModalDialogOpen } from "@/features/mail/mailboxSlice";
 import { Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { ComposeEditorToolbar } from "@/app/components/ComposeEditor/ComposeEditorToolbar";
-//import Paragraph from '@tiptap/extension-paragraph'
-import { useForm } from "react-hook-form";
-import { SubmitHandler } from "react-hook-form"
-import UseApi from "@/hooks/UseApi";
+import { useForm, SubmitHandler } from "react-hook-form"
 import useApi from "@/hooks/UseApi";
 
 interface IFormInput {
@@ -29,6 +26,7 @@ export function ComposeModalDialog() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: {errors}
   } = useForm<IFormInput>();
   const curOpenState = useSelector((state : AppStore) => state?.mailbox?.composeModalDialogOpen);
@@ -49,9 +47,13 @@ export function ComposeModalDialog() {
   // editor.getHTML()
 
   const handleSend: SubmitHandler<IFormInput> = async (data) => {
-    const result = await newMessage(editor.getHTML(), data.recipients, data.subject);
+    const result: string = await newMessage(editor.getHTML(), data.recipients, data.subject);
     console.log(result);
-    editor.destroy();
+    if(result === 'Success') {
+      reset();
+      dispatch(setComposeModalDialogOpen(false));
+      editor.destroy();
+    }
   }
 
 

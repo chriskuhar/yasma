@@ -53,12 +53,8 @@ function useMessageFormat() {
   }
 
   const stringToByteArray = (str: string): Uint8Array  => {
-  const byteArray = new Uint8Array(str.length);
-  for (let i = 0; i < str.length; i++) {
-    byteArray[i] = str.charCodeAt(i);
+      return new TextEncoder().encode(str);
   }
-  return byteArray;
-}
 
   return { messageRender, stringToB64 };
 }

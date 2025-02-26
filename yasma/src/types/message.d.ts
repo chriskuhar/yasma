@@ -20,7 +20,8 @@ export interface Body {
   data: string;
 }
 
-export type MessageAsciiText = {
+export interface MessageAsciiText {
   messageText: string;
   messageTextLen: number;
-}
+  decodedMessage: string;
+};

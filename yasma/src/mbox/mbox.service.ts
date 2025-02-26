@@ -147,7 +147,7 @@ export class MboxService {
         await this.authService.loadSavedCredentialsIfExist(token);
 
       const assembledMessage = await this.assembleSendMessage(token, message);
-      const result = this.sendMessage(auth, assembledMessage);
+      const result = await this.sendMessage(auth, assembledMessage);
       if(result) {
         return {
           message: 'Success',
@@ -182,7 +182,7 @@ export class MboxService {
           resolve(response);
         })
         .catch((error) => {
-          process.stdout.write(`${error} ${new Error().stack}`);
+          process.stdout.write(`${error.message} ${new Error().stack}`);
           reject(error);
         });
     });
@@ -197,7 +197,7 @@ export class MboxService {
         throw new HttpException('email required', HttpStatus.BAD_REQUEST);
       }
       //const headers: Header[] = this.assembleHeaders(message);
-      const { messageText } = this.extractTextFromMessage(message.message);
+      const { messageText, decodedMessage } = this.extractTextFromMessage(message.message);
 
       const mail = new MailComposer({
         from: loggedInUserEmail,
@@ -206,7 +206,7 @@ export class MboxService {
         to: message.recipient,
         subject: message.subject,
         text: messageText,
-        html: message.message,
+        html: decodedMessage,
         headers: this.assembleHeaders(),
       });
       assembledMessage = await mail.compile().build();
@@ -230,20 +230,21 @@ export class MboxService {
   extractTextFromMessage(messageB64: string): MessageAsciiText | null {
     let messageText: string = '';
     let messageTextLen: number = 0;
+    let decodedMessage: string = '';
     if(!messageB64) {
       return null;
     }
     try {
-      const decodedString: string = Buffer.from(messageB64, 'base64').toString('utf-8');
+      decodedMessage = Buffer.from(messageB64, 'base64').toString('utf-8');
       messageText = new JSDOM(
-        decodedString,
+        decodedMessage,
       ).window.document.body.textContent.trim();
       messageTextLen =
         messageText && messageText.length ? messageText.length : 0;
     } catch (error) {
       process.stdout.write(`${JSON.stringify(error)} ${new Error().stack}`);
     }
-    return { messageText, messageTextLen };
+    return { messageText, messageTextLen, decodedMessage };
   }
 
   getNowDateRFC2822() {

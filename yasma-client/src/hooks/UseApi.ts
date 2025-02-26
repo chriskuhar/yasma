@@ -62,7 +62,7 @@ function useApi() {
     return [];
   }
 
-  const newMessage = async (message: string, recipient: string, subject: string): Promise<Message> => {
+  const newMessage = async (message: string, recipient: string, subject: string): Promise<string> => {
     const data = {
       recipient,
       subject,
