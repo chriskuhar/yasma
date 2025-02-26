@@ -1,9 +1,9 @@
 'use client';
 import { redirect } from "next/navigation";
-import { MailboxList } from "@/app/main/MailboxList/page";
-import { MessageList } from "@/app/main/MessageList/page";
-import { MessageView } from "@/app/main/MessageView/page";
-import { Header } from "@/app/main/Header/page";
+import { MailboxList } from "@/app/main/MailboxList";
+import { MessageList } from "@/app/main/MessageList";
+import { MessageView } from "@/app/main/MessageView";
+import { Header } from "@/app/main/Header";
 import { ComposeModalDialog } from "@/app/components/ComposeEditor/ComposeModalDialog";
 import useApi from "@/hooks/UseApi";
 
