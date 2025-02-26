@@ -56,7 +56,6 @@ export function ComposeModalDialog() {
     }
   }
 
-
   return (
       <div>
         <Dialog open={curOpenState} handler={handleClose} size="md" className={`h-1/2 flex flex-col`}>
