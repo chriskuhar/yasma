@@ -1,6 +1,7 @@
 import { ApiInterface } from "@/types/api";
 import { ApiResult, Message } from "@/types/mbox";
 import useMessageFormat from "@/hooks/UseMessageFormat";
+import {UserSignup} from "@/types/auth-types";
 const { stringToB64 } = useMessageFormat();
 
 function useApi() {
@@ -24,6 +25,10 @@ function useApi() {
       }
     }
     return result.data;
+  }
+  const signup = async (data: UserSignup) : Promise<ApiInterface> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/auth/signup`, 'POST', {email: data.email, password: data.password, firstName: data.firstName, lastName: data.lastName})
+    return result;
   }
   const listMbox = async (): Promise<ApiResult> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/mbox/list`, 'GET')
@@ -94,7 +99,7 @@ function useApi() {
   }
 
   const api = async (url : string, method : string, body : object | null = null) : Promise<Api> => {
-    const result : Api = {} as Api;
+    const result : ApiInterface = {} as ApiInterface;
     const options : RequestInit = {
       url,
       method,
@@ -116,6 +121,7 @@ function useApi() {
       const request = new Request(url, options);
       const response = await fetch(request);
       result.data = await response.json();
+      result.status = response.status;
     } catch (error) {
       if (error instanceof Error) {
         result.message = error.message;
@@ -127,7 +133,7 @@ function useApi() {
     }
     return result;
   };
-  return { getMessage, newMessage, listMessages, listMbox, authenticate, isAuthenticated };
+  return { getMessage, newMessage, listMessages, listMbox, authenticate, signup, isAuthenticated };
 
 }
 export default useApi;

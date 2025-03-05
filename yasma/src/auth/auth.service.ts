@@ -1,4 +1,4 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as process from 'node:process';
 import { google } from 'googleapis';
 import * as path from 'path';
@@ -9,9 +9,15 @@ import { RedisService } from '../redis/redis.service';
 import * as crypto from 'crypto';
 import { AuthI } from '../types/auth';
 import { SessionObject } from '../types/SessionObject';
+import { User } from '../types/user';
+import { UserDbService } from '../mongo/userdb.service';
+import { Result } from '../types/result';
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
+];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -37,7 +43,10 @@ type Web = {
 };
 @Injectable()
 export class AuthService {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly userDbService: UserDbService,
+  ) {}
   /**
    * Reads previously authorized credentials from Redis record.
    *
@@ -129,5 +138,9 @@ export class AuthService {
 
   async testRedisKey(key: string): Promise<string> {
     return this.redisService.getKey(key);
+  }
+
+  async addUser(user: User): Promise<Result> {
+    return await this.userDbService.create(user);
   }
 }

@@ -17,3 +17,10 @@ export interface Credentials {
   refresh_token: string;
   access_token: string;
 }
+
+export interface UserAuth {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+}

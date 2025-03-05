@@ -1,7 +1,7 @@
 export interface ApiInterface {
   message?: string;
   error?: string;
-  status?: string;
+  status?: number;
   data?: object;
 }
 

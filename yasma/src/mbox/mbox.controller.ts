@@ -1,9 +1,8 @@
-import {Body, Controller, Get, Param, Post, Req} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { MboxService } from "./mbox.service";
-import {Message} from "../types/message";
-import {LoginDto} from "../auth/auth.dto";
-import {SendMessageDto} from "./mbox.dto";
-import {ResultApi} from "../types/mbox";
+import { Message } from '../types/message';
+import { SendMessageDto } from './mbox.dto';
+import { ResultApi } from '../types/mbox';
 
 @Controller('/api/mbox')
 export class MboxController {

@@ -1,7 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {BadRequestException, Body, Controller, Post} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthI } from '../types/auth';
-import { LoginDto } from "./auth.dto";
+import { LoginDto, UserDto } from './auth.dto';
+import { ApiResult } from '../types/apiResult';
+import {Result} from "../types/result";
 
 @Controller('/api')
 export class AuthController {
@@ -19,6 +21,19 @@ export class AuthController {
       return new Promise<AuthI>((resolve) => {
         resolve({ error: 'Email Required' });
       });
+    }
+  }
+
+  @Post('/auth/signup')
+  async addUser(@Body() userDto: UserDto): Promise<ApiResult> {
+    if (userDto.email && userDto.password) {
+      const result: Result = await this.authService.addUser(userDto);
+      if(result?.errorMessage) {
+        throw new BadRequestException(result.errorMessage);
+      }
+      return { data: result.data };
+    } else {
+      throw new BadRequestException('Bad Request');
     }
   }
 }
