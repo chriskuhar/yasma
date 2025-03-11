@@ -1,4 +1,4 @@
-### YASMA, Yet Another Social Media App
+### YASMA, Yet Another Social Mail App
 
 Here is the difference, **YOU** own the data.
 
