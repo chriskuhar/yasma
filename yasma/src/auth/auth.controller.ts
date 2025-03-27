@@ -27,7 +27,7 @@ export class AuthController {
   @Post('/auth/signup')
   async addUser(@Body() userDto: UserDto): Promise<ApiResult> {
     if (userDto.email && userDto.password) {
-      const result: Result = await this.authService.addUser(userDto);
+      const result: Result = await this.authService.addUser({ ...userDto });
       if(result?.errorMessage) {
         throw new BadRequestException(result.errorMessage);
       }

@@ -83,7 +83,7 @@ export class AuthService {
    * Serializes credentials to a Redis record compatible with GoogleAuth.fromJSON.
    *
    * @param {OAuth2Client} client
-   * @param {email} user's email address
+   * @param email
    * @return {Promise<void>}
    */
   async saveCredentials(client: OAuth2Client, email: string): Promise<string> {
@@ -108,6 +108,14 @@ export class AuthService {
     } as SessionObject);
     const uuid: string = crypto.randomUUID();
     await this.redisService.setKey(uuid, payload);
+
+    // save refresh token if there is one
+    if (client?.credentials?.refresh_token) {
+      await this.userDbService.putUserRefreshKey(
+        email,
+        client?.credentials?.refresh_token,
+      );
+    }
     return uuid;
   }
 

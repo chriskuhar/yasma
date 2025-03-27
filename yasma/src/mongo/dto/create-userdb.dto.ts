@@ -3,4 +3,10 @@ export class CreateUserDbDto {
   password: string;
   firstName?: string;
   lastName?: string;
+  refreshToken?: string;
+}
+
+export class UpdateAccessTokenDto {
+  email: string;
+  token: string;
 }

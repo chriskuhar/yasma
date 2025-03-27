@@ -1,7 +1,7 @@
 import { ApiInterface } from "@/types/api";
 import { ApiResult, Message } from "@/types/mbox";
 import useMessageFormat from "@/hooks/UseMessageFormat";
-import {UserSignup} from "@/types/auth-types";
+import { UserSignup } from "@/types/auth-types";
 const { stringToB64 } = useMessageFormat();
 
 function useApi() {

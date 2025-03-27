@@ -24,3 +24,7 @@ export interface UserAuth {
   lastName?: string;
   password?: string;
 }
+
+export interface RefreshToken {
+  refresh_token: string;
+}

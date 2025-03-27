@@ -1,20 +1,20 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/userdb.schema';
-import { CreateUserDbDto } from './dto/create-userdb.dto';
+import { User as UserSchema } from './schemas/userdb.schema';
 import { Result } from '../types/result';
-import { UserAuth } from "../types/auth";
+import { UserAuth } from '../types/auth';
+import { User } from '../types/user';
 
 @Injectable()
 export class UserDbService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(UserSchema.name) private userModel: Model<User>) {}
 
-  async create(createUserDto: CreateUserDbDto): Promise<Result> {
+  async create(createUser: User): Promise<Result> {
     let data: unknown = null;
     let errorMessage: string = '';
     try {
-      const createdUser = new this.userModel(createUserDto);
+      const createdUser = new this.userModel(createUser);
       const createUserResult: UserAuth = await createdUser.save();
       const { email, firstName, lastName } = createUserResult;
       data = { email, firstName, lastName };
@@ -34,5 +34,34 @@ export class UserDbService {
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
+  }
+
+  // Key: refresh key
+  async putUserRefreshKey(email: string, token: string): Promise<unknown> {
+    const result = false;
+    try {
+      const doc: unknown = await this.userModel
+        .findOne({ email: email })
+        .exec();
+      if (doc) {
+        // update doc
+        //doc.refreshToken = token;
+      } else {
+        // create doc
+        const userDoc: User = {
+          email: email,
+          refreshToken: token,
+        };
+        const createdUser = new this.userModel(userDoc);
+        const createUserResult: UserAuth = await createdUser.save();
+        //const { email, firstName, lastName } = createUserResult;
+        console.log(createUserResult);
+      }
+      console.log(doc);
+
+    } catch(error) {
+      console.log(error);
+    }
+    return result;
   }
 }
