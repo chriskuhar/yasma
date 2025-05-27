@@ -6,6 +6,17 @@ export class LoginDto {
   password: string;
 }
 
+// Google redirect auth
+export class GoogleAuthRedirectDto {
+  email: string;
+  url: string;
+}
+
+// login DTO
+export class ValidateCodeDto {
+  code: string;
+  email: string;
+}
 // create user DTO
 export class UserDto {
   @IsNotEmpty({ message: 'Email should not be empty' })

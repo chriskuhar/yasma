@@ -9,6 +9,7 @@ import { UserDbService } from '../mongo/userdb.service';
 import { UserDbModule } from '../mongo/userdb.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserDbSchema } from '../mongo/schemas/userdb.schema';
+import {JwtModule} from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { User, UserDbSchema } from '../mongo/schemas/userdb.schema';
     RedisModule,
     UserDbModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserDbSchema }]),
+    JwtModule.register({ secret: process.env.JWT_SECRET }),
   ],
   providers: [MboxService, AuthService, RedisService, UserDbService],
   controllers: [MboxController],

@@ -4,7 +4,11 @@ import { google } from 'googleapis';
 import * as path from 'path';
 import * as fs from 'node:fs';
 import { OAuth2Client } from 'googleapis-common';
-import { authenticate } from './auth.googleAuthenticate';
+import {
+  authenticate,
+  authenticateGoogleRedirect,
+  getGoogleAuthenticateURL, processCode,
+} from './auth.googleAuthenticate';
 import { RedisService } from '../redis/redis.service';
 import * as crypto from 'crypto';
 import { AuthI } from '../types/auth';
@@ -61,7 +65,7 @@ export class AuthService {
       if (!sessionObjectString) {
         return null;
       }
-      let sessionObject: SessionObject | object = {};
+      let sessionObject: SessionObject;
       if (typeof sessionObjectString === 'string') {
         sessionObject = JSON.parse(sessionObjectString);
       }
@@ -124,9 +128,12 @@ export class AuthService {
    *
    */
   async authorize(_uuid: string = null, email: string): Promise<AuthI> {
-    let client: unknown = await this.loadSavedCredentialsIfExist(_uuid);
-    if (client) {
-      return { uuid: _uuid };
+    let client: OAuth2Client;
+    if (_uuid) {
+      client = await this.loadSavedCredentialsIfExist(_uuid);
+      if (client) {
+        return { uuid: _uuid };
+      }
     }
     // exchange credentials for token, user authenticates via web redirect
     client = await authenticate({
@@ -144,11 +151,45 @@ export class AuthService {
     return await this.authorize(null, email);
   }
 
+  async authenticateFromGoogleRedirect(
+    email: string,
+    url: string,
+  ): Promise<AuthI> {
+    const client: OAuth2Client = await authenticateGoogleRedirect(email, url);
+    let uuid: string = '';
+    if (client) {
+      uuid = await this.saveCredentials(client as OAuth2Client, email);
+    }
+    return { uuid };
+  }
+
   async testRedisKey(key: string): Promise<string> {
     return this.redisService.getKey(key);
   }
 
   async addUser(user: User): Promise<Result> {
     return await this.userDbService.create(user);
+  }
+
+  async getGoogleAuthURL(): Promise<string> {
+    // exchange credentials for token, user authenticates via web redirect
+    const googleAuthUrl: string = getGoogleAuthenticateURL({
+      scopes: SCOPES,
+      keyfilePath: CREDENTIALS_PATH,
+    });
+    return googleAuthUrl;
+  }
+  /**
+   * Load or request or authorization to call APIs.
+   *
+   */
+  async authenticateCode(code: string = null, email: string = null): Promise<string> {
+    // exchange credentials for token, user authenticates via web redirect
+    const client: OAuth2Client = await processCode(code, CREDENTIALS_PATH);
+    let uuid: string = '';
+    if (client) {
+      uuid = await this.saveCredentials(client as OAuth2Client, email);
+    }
+    return uuid;
   }
 }

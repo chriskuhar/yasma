@@ -3,6 +3,7 @@ import {authenticate} from "@google-cloud/local-auth";
 export interface AuthI {
   uuid?: string;
   error?: string;
+  data?: object | null;
 }
 
 export interface LoginAPI {

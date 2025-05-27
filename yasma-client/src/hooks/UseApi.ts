@@ -2,6 +2,8 @@ import { ApiInterface } from "@/types/api";
 import { ApiResult, Message } from "@/types/mbox";
 import useMessageFormat from "@/hooks/UseMessageFormat";
 import { UserSignup } from "@/types/auth-types";
+import { Api } from "@reduxjs/toolkit/query";
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const { stringToB64 } = useMessageFormat();
 
 function useApi() {
@@ -19,12 +21,16 @@ function useApi() {
 
   const authenticate = async (email: string, password: string) : Promise<ApiInterface> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/auth`, 'POST', {email, password})
-    if(result?.data?.uuid) {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('token', result.data.uuid);
-      }
-    }
     return result.data;
+  }
+  const validateGoogleCode = async (code: string) : Promise<boolean> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/google-validate-code`, 'POST', {code})
+    if(result?.data?.data?.token) {
+      // update token, has uuid / redis key now
+      sessionStorage.setItem('token', result.data.data.token);
+      return true;
+    }
+    return false;
   }
   const signup = async (data: UserSignup) : Promise<ApiInterface> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/auth/signup`, 'POST', {email: data.email, password: data.password, firstName: data.firstName, lastName: data.lastName})
@@ -98,6 +104,23 @@ function useApi() {
     return !!token ? token : false;
   }
 
+  const getGoogleAuthUrl = async (): Promise<string> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/auth/google-auth-url`, 'GET')
+    if(result.data) {
+      return result.data;
+    }
+    return null;
+  }
+  const googleAuthenticate = async (email: string, password: string) : Promise<ApiInterface> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/google-auth`, 'POST', {email, password})
+    if(result?.data?.data?.token) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('token', result.data.data.token);
+      }
+    }
+    return result.data;
+  }
+
   const api = async (url : string, method : string, body : object | null = null) : Promise<Api> => {
     const result : ApiInterface = {} as ApiInterface;
     const options : RequestInit = {
@@ -133,7 +156,17 @@ function useApi() {
     }
     return result;
   };
-  return { getMessage, newMessage, listMessages, listMbox, authenticate, signup, isAuthenticated };
+  return {
+    getMessage,
+    newMessage,
+    listMessages,
+    listMbox,
+    authenticate,
+    signup,
+    isAuthenticated,
+    googleAuthenticate,
+    validateGoogleCode,
+  };
 
 }
 export default useApi;

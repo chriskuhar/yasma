@@ -3,10 +3,14 @@ import { MboxService } from "./mbox.service";
 import { Message } from '../types/message';
 import { SendMessageDto } from './mbox.dto';
 import { ResultApi } from '../types/mbox';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('/api/mbox')
 export class MboxController {
-  constructor(private readonly mboxService: MboxService) {}
+  constructor(
+    private readonly mboxService: MboxService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Get('/list')
   async getMboxList(
@@ -14,11 +18,13 @@ export class MboxController {
   ): Promise<string> {
     const authHeader: string = req.headers['authorization'];
     const bits: string[] = authHeader.split(' ');
-    let token: string | null = null;
+    let jwt: string | null = null;
     if (bits.length > 1) {
-      token = bits[1];
+      jwt = bits[1];
     }
-    return await this.mboxService.mboxListLabels(token);
+    const jwtDecoded = this.jwtService.decode(jwt);
+    const uuid = jwtDecoded.uuid;
+    return await this.mboxService.mboxListLabels(uuid);
   }
 
   @Get('/messages/:MBOX')
@@ -28,11 +34,13 @@ export class MboxController {
   ): Promise<string> {
     const authHeader: string = req.headers['authorization'];
     const bits: string[] = authHeader.split(' ');
-    let token: string | null = null;
+    let jwt: string | null = null;
     if (bits.length > 1) {
-      token = bits[1];
+      jwt = bits[1];
     }
-    return await this.mboxService.mboxListMessages(token, mbox);
+    const jwtDecoded = this.jwtService.decode(jwt);
+    const uuid = jwtDecoded.uuid;
+    return await this.mboxService.mboxListMessages(uuid, mbox);
   }
 
   @Post('/message')
@@ -42,11 +50,13 @@ export class MboxController {
   ): Promise<ResultApi> {
     const authHeader: string = req.headers['authorization'];
     const bits: string[] = authHeader.split(' ');
-    let token: string | null = null;
+    let jwt: string | null = null;
     if (bits.length > 1) {
-      token = bits[1];
+      jwt = bits[1];
     }
-    return await this.mboxService.mboxNewMessage(token, sendMessageDto);
+    const jwtDecoded = this.jwtService.decode(jwt);
+    const uuid = jwtDecoded.uuid;
+    return await this.mboxService.mboxNewMessage(uuid, sendMessageDto);
   }
 
   @Get('/message/:messageId')
@@ -56,10 +66,12 @@ export class MboxController {
   ): Promise<Message> {
     const authHeader: string = req.headers['authorization'];
     const bits: string[] = authHeader.split(' ');
-    let token: string | null = null;
+    let jwt: string | null = null;
     if (bits.length > 1) {
-      token = bits[1];
+      jwt = bits[1];
     }
-    return await this.mboxService.mboxGetMessage(token, messageId);
+    const jwtDecoded = this.jwtService.decode(jwt);
+    const uuid = jwtDecoded.uuid;
+    return await this.mboxService.mboxGetMessage(uuid, messageId);
   }
 }
