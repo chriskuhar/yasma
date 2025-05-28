@@ -1,3 +1,4 @@
+'use client'
 import { ApiInterface } from "@/types/api";
 import { ApiResult, Message } from "@/types/mbox";
 import useMessageFormat from "@/hooks/UseMessageFormat";
@@ -143,8 +144,12 @@ function useApi() {
     try {
       const request = new Request(url, options);
       const response = await fetch(request);
-      result.data = await response.json();
       result.status = response.status;
+      if(response.status === 401) {
+        // a little bombastic ...
+        window.location.href = '/login';
+      }
+      result.data = await response.json();
     } catch (error) {
       if (error instanceof Error) {
         result.message = error.message;
