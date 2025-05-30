@@ -1,9 +1,7 @@
 'use client'
-import {SubmitHandler} from "react-hook-form"
-import {useForm} from 'react-hook-form'
-import {Api} from '@/types/api'
-import {redirect} from "next/navigation";
-import UseApi from "@/hooks/UseApi";
+import { Api } from '@/types/api'
+import UseApi from '@/hooks/UseApi';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface IFormInput {
   email: string
@@ -14,6 +12,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    formState: { errors },
   } = useForm<IFormInput>()
   const { googleAuthenticate } = UseApi();
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
@@ -41,7 +40,7 @@ export default function Login() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium">
+            <label htmlFor="email" className={`block text-sm/6 font-medium ${errors.email ? 'text-red-900' : 'text-grey-300'}`}>
               Email address
             </label>
             <div className="mt-2">
@@ -49,15 +48,15 @@ export default function Login() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                {...register("email", { min: 8, max: 64 })}
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                {...register("email", { required: true, min: 8, max: 64 })}
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 ${errors.email ? 'outline-red-900':'outline-gray-300'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 ${errors.email ? 'focus:outline-red-900':'focus:outline-indigo-600'} sm:text-sm/6`}
               />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm/6 font-medium">
+              <label htmlFor="password" className={`block text-sm/6 font-medium ${errors.password ? 'text-red-900' : 'text-grey-300'}`}>
                 Password
               </label>
               <div className="text-sm">
@@ -73,9 +72,9 @@ export default function Login() {
               <input
                 id="password"
                 type="password"
-                {...register("password", { min: 8, max: 64 })}
+                {...register("password", { required: true, min: 8, max: 64 })}
                 autoComplete="current-password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 ${errors.password ? 'outline-red-900':'outline-gray-300'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 ${errors.email ? 'focus:outline-red-900':'focus:outline-indigo-600'} sm:text-sm/6`}
               />
             </div>
           </div>

@@ -64,4 +64,20 @@ export class UserDbService {
     }
     return result;
   }
+
+  // get refresh token from email address
+  async getRefreshTokenFromEmail(email: string): Promise<string> {
+    let refreshToken: string = '';
+    try {
+      const user: User = await this.userModel
+        .findOne({ email: email })
+        .exec();
+      if (user && user.refreshToken) {
+        refreshToken = user.refreshToken;
+      }
+    } catch(error) {
+      console.log(error);
+    }
+    return refreshToken;
+  }
 }

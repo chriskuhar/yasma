@@ -64,12 +64,6 @@ export class AuthController {
     }
   }
 
-  @Get('/auth/google-auth-url')
-  async getAuthUrl(): Promise<ApiResult> {
-    const url = await this.authService.getGoogleAuthURL();
-    return { data: url };
-  }
-
   // authenticate user locally
   // return google API redirect URL and JWT
   @Post('/google-auth')

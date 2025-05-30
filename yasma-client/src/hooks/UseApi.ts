@@ -105,13 +105,6 @@ function useApi() {
     return !!token ? token : false;
   }
 
-  const getGoogleAuthUrl = async (): Promise<string> => {
-    const result: ApiInterface = await api(`${BASE_URL}/api/auth/google-auth-url`, 'GET')
-    if(result.data) {
-      return result.data;
-    }
-    return null;
-  }
   const googleAuthenticate = async (email: string, password: string) : Promise<ApiInterface> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/google-auth`, 'POST', {email, password})
     if(result?.data?.data?.token) {

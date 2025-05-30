@@ -13,7 +13,10 @@ const MailComposer = require('nodemailer/lib/mail-composer');
 
 @Injectable()
 export class MboxService {
-  constructor(private readonly authService: AuthService, private readonly redisService: RedisService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly redisService: RedisService,
+  ) {}
 
   /**
    * Lists the labels in the user's account.
@@ -101,7 +104,8 @@ export class MboxService {
       }
       return JSON.stringify(result);
     } catch (error) {
-      const message: string = error?.message || 'Unknown error listing messages';
+      const message: string =
+        error?.message || 'Unknown error listing messages';
       process.stdout.write(`${message} ${new Error().stack}`);
       process.stdout.write(`Library Stack: ${error.stack}`);
       throw new UnauthorizedException(message);
