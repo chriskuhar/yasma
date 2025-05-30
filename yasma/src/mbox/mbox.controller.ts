@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Req, UnauthorizedException} from '@nestjs/common';
 import { MboxService } from "./mbox.service";
 import { Message } from '../types/message';
 import { SendMessageDto } from './mbox.dto';
@@ -16,14 +16,10 @@ export class MboxController {
   async getMboxList(
       @Req() req: Request,
   ): Promise<string> {
-    const authHeader: string = req.headers['authorization'];
-    const bits: string[] = authHeader.split(' ');
-    let jwt: string | null = null;
-    if (bits.length > 1) {
-      jwt = bits[1];
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
     }
-    const jwtDecoded = this.jwtService.decode(jwt);
-    const uuid = jwtDecoded.uuid;
+    const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxListLabels(uuid);
   }
 
@@ -32,14 +28,10 @@ export class MboxController {
     @Param('MBOX') mbox: string,
     @Req() req: Request,
   ): Promise<string> {
-    const authHeader: string = req.headers['authorization'];
-    const bits: string[] = authHeader.split(' ');
-    let jwt: string | null = null;
-    if (bits.length > 1) {
-      jwt = bits[1];
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
     }
-    const jwtDecoded = this.jwtService.decode(jwt);
-    const uuid = jwtDecoded.uuid;
+    const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxListMessages(uuid, mbox);
   }
 
@@ -48,14 +40,10 @@ export class MboxController {
     @Body() sendMessageDto: SendMessageDto,
     @Req() req: Request,
   ): Promise<ResultApi> {
-    const authHeader: string = req.headers['authorization'];
-    const bits: string[] = authHeader.split(' ');
-    let jwt: string | null = null;
-    if (bits.length > 1) {
-      jwt = bits[1];
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
     }
-    const jwtDecoded = this.jwtService.decode(jwt);
-    const uuid = jwtDecoded.uuid;
+    const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxNewMessage(uuid, sendMessageDto);
   }
 
@@ -64,14 +52,10 @@ export class MboxController {
     @Param('messageId') messageId: string,
     @Req() req: Request,
   ): Promise<Message> {
-    const authHeader: string = req.headers['authorization'];
-    const bits: string[] = authHeader.split(' ');
-    let jwt: string | null = null;
-    if (bits.length > 1) {
-      jwt = bits[1];
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
     }
-    const jwtDecoded = this.jwtService.decode(jwt);
-    const uuid = jwtDecoded.uuid;
+    const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxGetMessage(uuid, messageId);
   }
 }
