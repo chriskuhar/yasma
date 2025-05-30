@@ -15,7 +15,10 @@ interface IFormInput {
 }
 
 export default function Signup() {
-  const { register, handleSubmit } = useForm<IFormInput>();
+  const { register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>();
   const { signup } = UseApi();
   const [ errorMessage, setErrorMessage ] = useState('');
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
@@ -53,7 +56,7 @@ export default function Signup() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium">
+            <label htmlFor="email" className={`block text-sm/6 font-medium  ${errors.email ? 'text-red-900' : 'text-grey-300'}`}>
               Email Address
             </label>
             <div className="mt-2">
@@ -61,14 +64,14 @@ export default function Signup() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                {...register("email", { min: 8, max: 64 })}
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                {...register("email", { required: true, min: 8, max: 64 })}
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6  ${errors.email ? 'outline-red-900 focus:outline-red-900' : 'outline-gray-300 focus:outline-indigo-600'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2  sm:text-sm/6\`}`}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium">
+            <label htmlFor="email" className={`block text-sm/6 font-medium ${errors.email ? 'text-red-900' : 'text-grey-300'}`}>
               First Name
             </label>
             <div className="mt-2">
@@ -76,14 +79,14 @@ export default function Signup() {
                 id="firstName"
                 type="text"
                 autoComplete="firstName"
-                {...register("firstName", { min: 3, max: 64 })}
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                {...register("firstName", { required: true, min: 3, max: 64 })}
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6  ${errors.email ? 'outline-red-900 focus:outline-red-900' : 'outline-gray-300 focus:outline-indigo-600'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2  sm:text-sm/6\`}`}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium">
+            <label htmlFor="email" className={`block text-sm/6 font-medium ${errors.email ? 'text-red-900' : 'text-grey-300'}`}>
               Last Name
             </label>
             <div className="mt-2">
@@ -91,15 +94,15 @@ export default function Signup() {
                 id="lastName"
                 type="text"
                 autoComplete="lastName"
-                {...register("lastName", { min: 3, max: 64 })}
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                {...register("lastName", { required: true, min: 3, max: 64 })}
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6  ${errors.email ? 'outline-red-900 focus:outline-red-900' : 'outline-gray-300 focus:outline-indigo-600'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2  sm:text-sm/6\`}`}
               />
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm/6 font-medium">
+              <label htmlFor="password" className={`block text-sm/6 font-medium ${errors.email ? 'text-red-900' : 'text-grey-300'}`}>
                 Password
               </label>
             </div>
@@ -107,9 +110,9 @@ export default function Signup() {
               <input
                 id="password"
                 type="password"
-                {...register("password", { min: 8, max: 64 })}
+                {...register("password", { required: true, min: 8, max: 64 })}
                 autoComplete="current-password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 sm:text-sm/6  ${errors.email ? 'outline-red-900 focus:outline-red-900' : 'outline-gray-300 focus:outline-indigo-600'} placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2  sm:text-sm/6\`}`}
               />
             </div>
           </div>

@@ -16,7 +16,6 @@ export default function Login() {
   } = useForm<IFormInput>()
   const { googleAuthenticate } = UseApi();
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-    console.log(data)
     const result : Api = await googleAuthenticate(data.email, data.password)
 
     if(result.data) {

@@ -1,5 +1,4 @@
 import { Mbox } from "@/types/mbox";
-import {list} from "postcss";
 
 function useFilterMailboxes() {
   const LABEL_SHOW = 'labelShow';
