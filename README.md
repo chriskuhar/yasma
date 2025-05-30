@@ -1,5 +1,8 @@
 ### YASMA, Yet Another Social Mail App
 
+Work in progress, at this point the user can log in, get gmail OAuth2 token,read messages and send email.
+
+
 Here is the difference, **YOU** own the data.
 
 The concept is, this app is a mail reader with a feature to view only posts.  A
