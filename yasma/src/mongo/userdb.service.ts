@@ -64,6 +64,16 @@ export class UserDbService {
     return result;
   }
 
+  // get user
+  async getUser(email: string): Promise<User> {
+    let user: User | null = null;
+    try {
+      user = await this.userModel.findOne({ email: email }).exec();
+    } catch (error) {
+      console.log(error);
+    }
+    return user;
+  }
   // get refresh token from email address
   async getRefreshTokenFromEmail(email: string): Promise<string> {
     let refreshToken: string = '';

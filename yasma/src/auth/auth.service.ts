@@ -177,7 +177,8 @@ export class AuthService {
   }
 
   async checkLocalAuth(email: string, password: string): Promise<boolean> {
-    return await bcrypt.compare(password, process.env.LOCAL_SALT);
+    const user: User = await this.userDbService.getUser(email);
+    return await bcrypt.compare(password, user.password);
   }
 
   async getGoogleAuthURL(): Promise<string> {
