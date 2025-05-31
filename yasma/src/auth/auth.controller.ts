@@ -4,7 +4,7 @@ import {
   Controller,
   Get,
   Post,
-  Req,
+  Req, UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthI } from '../types/auth';
@@ -68,15 +68,16 @@ export class AuthController {
   // return google API redirect URL and JWT
   @Post('/google-auth')
   async getGoogleAuth(@Body() loginDto: LoginDto): Promise<AuthI> {
-    if (loginDto.email) {
+    if (loginDto.email && loginDto.password) {
       // validate the email...
+      if (!this.authService.checkLocalAuth(loginDto.email, loginDto.password)) {
+        throw new UnauthorizedException();
+      }
       const url = await this.authService.getGoogleAuthURL();
       const token = this.jwtService.sign({ email: loginDto.email }, { expiresIn: '12h', secret: process.env.JWT_SECRET });
       return { data: { url, token } };
     } else {
-      return new Promise<AuthI>((resolve) => {
-        resolve({ error: 'Email Required' });
-      });
+      throw new BadRequestException('Bad Request');
     }
   }
 

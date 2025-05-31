@@ -16,6 +16,7 @@ import { SessionObject } from '../types/SessionObject';
 import { User } from '../types/user';
 import { UserDbService } from '../mongo/userdb.service';
 import { Result } from '../types/result';
+import * as bcrypt from 'bcrypt';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
@@ -167,7 +168,16 @@ export class AuthService {
   }
 
   async addUser(user: User): Promise<Result> {
+    process.stdout.write(`ENV SALT ${process.env.LOCAL_SALT}`);
+    user.password = await bcrypt.hash(
+        user.password,
+        process.env.LOCAL_SALT,
+    );
     return await this.userDbService.create(user);
+  }
+
+  async checkLocalAuth(email: string, password: string): Promise<boolean> {
+    return await bcrypt.compare(password, process.env.LOCAL_SALT);
   }
 
   async getGoogleAuthURL(): Promise<string> {

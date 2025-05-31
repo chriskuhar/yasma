@@ -58,8 +58,7 @@ export class UserDbService {
         console.log(createUserResult);
       }
       console.log(doc);
-
-    } catch(error) {
+    } catch (error) {
       console.log(error);
     }
     return result;
@@ -69,13 +68,11 @@ export class UserDbService {
   async getRefreshTokenFromEmail(email: string): Promise<string> {
     let refreshToken: string = '';
     try {
-      const user: User = await this.userModel
-        .findOne({ email: email })
-        .exec();
+      const user: User = await this.userModel.findOne({ email: email }).exec();
       if (user && user.refreshToken) {
         refreshToken = user.refreshToken;
       }
-    } catch(error) {
+    } catch (error) {
       console.log(error);
     }
     return refreshToken;
