@@ -22,11 +22,11 @@ export class MboxService {
    * Lists the labels in the user's account.
    *
    */
-  async mboxListLabels(token: string): Promise<string | null> {
+  async mboxListLabels(token: string, email: string): Promise<string | null> {
     try {
       // access_token = auth.credentials.access_token
       const auth: OAuth2Client =
-        await this.authService.loadSavedCredentialsIfExist(token);
+        await this.authService.loadSavedCredentialsIfExist(token, email);
 
       const gmail = google.gmail('v1');
       google.options({ auth });

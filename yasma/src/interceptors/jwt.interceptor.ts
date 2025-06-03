@@ -6,7 +6,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import {JwtService} from "@nestjs/jwt";
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtInterceptor implements NestInterceptor {
@@ -22,9 +22,11 @@ export class JwtInterceptor implements NestInterceptor {
       // Save token or parsed values to request
       const tokenDecoded = this.jwtService.decode(token);
       const uuid = tokenDecoded.uuid;
+      const email = tokenDecoded.email;
       request.userContext = {
         jwt: token,
         uuid: uuid,
+        email: email,
       };
     }
 

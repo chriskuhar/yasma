@@ -20,7 +20,8 @@ export class MboxController {
       throw new UnauthorizedException();
     }
     const uuid = req['userContext']['uuid'];
-    return await this.mboxService.mboxListLabels(uuid);
+    const email = req['userContext']['email'];
+    return await this.mboxService.mboxListLabels(uuid, email);
   }
 
   @Get('/messages/:MBOX')

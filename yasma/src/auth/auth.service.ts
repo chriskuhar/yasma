@@ -58,6 +58,7 @@ export class AuthService {
    */
   async loadSavedCredentialsIfExist(
     uuid: string = null,
+    email: string = null,
   ): Promise<OAuth2Client> {
     try {
       const sessionObjectString = await this.redisService.getKey(uuid);
@@ -70,6 +71,11 @@ export class AuthService {
         sessionObject = JSON.parse(sessionObjectString);
       }
       if ('auth' in sessionObject && sessionObject?.auth) {
+        const refreshToken =
+          await this.userDbService.getRefreshTokenFromEmail(email);
+        if (refreshToken) {
+          sessionObject.credentials.refresh_token = refreshToken;
+        }
         result = google.auth.fromJSON(
           sessionObject.credentials,
         ) as unknown as OAuth2Client;
@@ -98,6 +104,12 @@ export class AuthService {
       keys = JSON.parse(content);
     }
     const key: Web = keys?.installed || keys?.web;
+    // if creds do not have refresh token (fresh login)
+    // get save refresh_token from user DB record
+    let refreshToken: string | null = client?.credentials?.refresh_token;
+    if (!refreshToken) {
+      refreshToken = await this.userDbService.getRefreshTokenFromEmail(email);
+    }
     const payload: string = JSON.stringify({
       email: email,
       auth: client,
@@ -106,7 +118,7 @@ export class AuthService {
         client_id: key.client_id,
         client_email: email,
         client_secret: key.client_secret,
-        refresh_token: client?.credentials?.refresh_token,
+        refresh_token: refreshToken,
         access_token: client?.credentials?.access_token,
       },
     } as SessionObject);

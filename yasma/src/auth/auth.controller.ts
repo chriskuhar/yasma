@@ -65,7 +65,7 @@ export class AuthController {
   }
 
   // authenticate user locally
-  // return google API redirect URL and JWT
+  // return google API redirect URL and JWT containing users email
   @Post('/google-auth')
   async getGoogleAuth(@Body() loginDto: LoginDto): Promise<AuthI> {
     if (loginDto.email && loginDto.password) {
@@ -74,7 +74,10 @@ export class AuthController {
         throw new UnauthorizedException();
       }
       const url = await this.authService.getGoogleAuthURL();
-      const token = this.jwtService.sign({ email: loginDto.email }, { expiresIn: '12h', secret: process.env.JWT_SECRET });
+      const token = this.jwtService.sign(
+        { email: loginDto.email },
+        { expiresIn: '12h', secret: process.env.JWT_SECRET },
+      );
       return { data: { url, token } };
     } else {
       throw new BadRequestException('Bad Request');
@@ -87,26 +90,16 @@ export class AuthController {
     @Req() req: Request,
   ): Promise<{ data: string } | AuthI> {
     if (loginDto.code) {
-      // get email from JWT
-      const authHeader: string = req.headers['authorization'];
-      if(authHeader) {
-        const bits: string[] = authHeader.split(' ');
-        let jwt: string | null = null;
-        if (bits.length > 1) {
-          jwt = bits[1];
-        }
-        const jwtDecoded = this.jwtService.decode(jwt);
-        const email = jwtDecoded.email;
-        const uuid = await this.authService.authenticateCode(
-          loginDto.code,
-          email,
-        );
-        const token = this.jwtService.sign(
-          { email: loginDto.email, uuid: uuid },
-          { expiresIn: '12h', secret: process.env.JWT_SECRET },
-        );
-        return { data: { token } };
-      }
+      const email = req['userContext']['email'];
+      const uuid = await this.authService.authenticateCode(
+        loginDto.code,
+        email,
+      );
+      const token = this.jwtService.sign(
+        { email: email, uuid: uuid },
+        { expiresIn: '12h', secret: process.env.JWT_SECRET },
+      );
+      return { data: { token } };
     } else {
       return new Promise<AuthI>((resolve) => {
         resolve({ error: 'Email Required' });

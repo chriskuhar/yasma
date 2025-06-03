@@ -40,12 +40,13 @@ export class UserDbService {
   async putUserRefreshKey(email: string, token: string): Promise<unknown> {
     const result = false;
     try {
-      const doc: unknown = await this.userModel
-        .findOne({ email: email })
-        .exec();
+      const doc: User = await this.userModel.findOne({ email: email }).exec();
       if (doc) {
         // update doc
-        //doc.refreshToken = token;
+        await this.userModel.updateOne(
+          { email: email },
+          { $set: { refreshToken: token } },
+        );
       } else {
         // create doc
         const userDoc: User = {
