@@ -1,21 +1,31 @@
 import { Button } from "@material-tailwind/react";
-import { useDispatch } from "react-redux";
-import { setComposeModalDialogOpen } from "@/features/mail/mailboxSlice";
+import {useMailStore} from "@/stores/mail-store";
 
 export function Header() {
-  const dispatch = useDispatch()
+  const setComposeModalDialogOpen = useMailStore((state) => state.setComposeModalDialogOpen);
   const handleCompose = () => {
-    dispatch(setComposeModalDialogOpen(true));
+    setComposeModalDialogOpen(true);
+  }
+  const handleLogout = () => {
+
   }
   return (
-      <>
-        <div className="page-header flex justify-between items-center">
-          <div>
-            <Button size="sm" color="blue" onClick={() => handleCompose()}>Compose</Button>
-          </div>
-          <div></div>
-          <div>Welcome</div>
+    <>
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <Button
+            size="sm"
+            color="blue"
+            onClick={() => handleCompose()}
+          >
+            Compose
+          </Button>
         </div>
-      </>
+        <div className="flex flex-col">
+          <div onClick={() => handleLogout()}>Logout</div>
+          <div>Chris Kuhar</div>
+        </div>
+      </div>
+    </>
   );
 }

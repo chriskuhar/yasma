@@ -1,14 +1,12 @@
 'use client'
 import {ApiResult, Mbox} from "@/types/mbox";
 import { useState, useEffect } from "react";
-import {useDispatch, useSelector} from 'react-redux'
 import UseApi from "@/hooks/UseApi";
-import { setCurrentMailbox } from "@/features/mail/mailboxSlice";
 import useFilterMailboxes from "@/hooks/UseFilterMailboxes";
-import {AppStore} from "@/lib/store";
+import  { useMailStore } from "@/stores/mail-store";
 
 export function MailboxList() {
-  const dispatch = useDispatch()
+  const setCurrentMailbox = useMailStore((state) => state.setCurrentMailbox);
   const [mailboxes, setMailboxes] = useState([]);
   const [selectedMailboxIdx, setSelectedMailboxIdx] = useState(2);
   const { listMbox } = UseApi();
@@ -24,7 +22,7 @@ export function MailboxList() {
 
   const handleSetCurrentMailbox = (_curMailbox: Mbox, index: number) => {
     setSelectedMailboxIdx(index);
-    dispatch(setCurrentMailbox(_curMailbox));
+    setCurrentMailbox(_curMailbox);
   }
   return (
       <div className="overflow-auto h-full">

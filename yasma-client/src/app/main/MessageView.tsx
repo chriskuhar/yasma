@@ -1,11 +1,10 @@
-import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import useMessageFormat from "@/hooks/UseMessageFormat";
 import UseApi from "@/hooks/UseApi";
-import { AppStore } from "@/lib/store";
+import {useMailStore} from "@/stores/mail-store";
 
 export function MessageView() {
-  const curMessage = useSelector((state : AppStore) => state?.mailbox?.currentMessage);
+  const curMessage = useMailStore((state) => state.messageState);
   const { messageRender } = useMessageFormat();
   const [ message, setMessage ] = useState(null);
   const { getMessage } = UseApi();

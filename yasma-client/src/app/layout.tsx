@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { PT_Sans, PT_Mono } from "next/font/google";
 import "./globals.css";
-import StoreProvider from "./StoreProvider"
 
 
 const geistSans = Geist({
@@ -42,9 +41,7 @@ export default function RootLayout({
       <body
         className={`${ptSans.variable} ${ptMono.variable} antialiased text-gray-800`}
       >
-      <StoreProvider>
-        {children}
-      </StoreProvider>
+      {children}
       </body>
     </html>
   );

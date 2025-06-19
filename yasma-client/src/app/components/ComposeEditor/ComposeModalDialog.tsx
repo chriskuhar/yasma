@@ -6,15 +6,12 @@ import {
   DialogFooter,
   Input,
 } from "@material-tailwind/react";
-import { useSelector } from "react-redux";
-import { AppStore } from "@/lib/store";
-import { useDispatch } from "react-redux";
-import { setComposeModalDialogOpen } from "@/features/mail/mailboxSlice";
 import { Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { ComposeEditorToolbar } from "@/app/components/ComposeEditor/ComposeEditorToolbar";
 import { useForm, SubmitHandler } from "react-hook-form"
 import useApi from "@/hooks/UseApi";
+import { useMailStore } from "@/stores/mail-store";
 
 interface IFormInput {
   subject: string
@@ -22,6 +19,7 @@ interface IFormInput {
 }
 
 export function ComposeModalDialog() {
+  const setComposeModalDialogOpen = useMailStore((state) => state.setComposeModalDialogOpen);
   const { newMessage } = useApi();
   const {
     register,
@@ -29,10 +27,9 @@ export function ComposeModalDialog() {
     reset,
     formState: {errors}
   } = useForm<IFormInput>();
-  const curOpenState = useSelector((state : AppStore) => state?.mailbox?.composeModalDialogOpen);
-  const dispatch = useDispatch();
+  const curOpenState = useMailStore((state) => state.composeDialogState.composeModalDialogOpen);
   const handleClose = async () => {
-    dispatch(setComposeModalDialogOpen(false));
+    setComposeModalDialogOpen(false);
     editor.destroy();
 
   }
@@ -51,7 +48,7 @@ export function ComposeModalDialog() {
     console.log(result);
     if(result === 'Success') {
       reset();
-      dispatch(setComposeModalDialogOpen(false));
+      setComposeModalDialogOpen(false);
       editor.destroy();
     }
   }

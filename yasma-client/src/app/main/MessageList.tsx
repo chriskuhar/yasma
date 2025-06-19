@@ -1,21 +1,19 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { ApiResult, MessageMetaData } from "@/types/mbox";
-import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentMessage } from "@/features/mail/mailboxSlice";
+import { useMailStore } from "@/stores/mail-store";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
 import UseApi from "@/hooks/UseApi";
-import { AppStore } from "@/lib/store";
 import { Spinner } from "@material-tailwind/react";
 
 
 export function MessageList() {
-  const curMailbox = useSelector((state : AppStore) => state?.mailbox?.currentMailbox);
+  const setCurrentMessage = useMailStore((state) => state.setCurrentMessage);
+  const curMailbox = useMailStore((state) => state.mailboxState);
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
   const { listMessages } = UseApi();
-  const dispatch = useDispatch()
   const [metadata, setMetadata] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -34,7 +32,7 @@ export function MessageList() {
   }, [curMailbox]);
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
-    dispatch(setCurrentMessage(message));
+    setCurrentMessage(message);
   }
 
   return (
