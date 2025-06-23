@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post, Req, UnauthorizedException} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Req, Query, UnauthorizedException} from '@nestjs/common';
 import { MboxService } from "./mbox.service";
 import { Message } from '../types/message';
 import { SendMessageDto } from './mbox.dto';
@@ -24,16 +24,17 @@ export class MboxController {
     return await this.mboxService.mboxListLabels(uuid, email);
   }
 
-  @Get('/messages/:MBOX')
+  @Get('/messages')
   async getMboxMessages(
-    @Param('MBOX') mbox: string,
+    @Query('mbox') mbox: string,
+    @Query('nextPageToken') nextPageToken: string,
     @Req() req: Request,
   ): Promise<string> {
     if (!req['userContext'] || !req['userContext']['uuid']) {
       throw new UnauthorizedException();
     }
     const uuid = req['userContext']['uuid'];
-    return await this.mboxService.mboxListMessages(uuid, mbox);
+    return await this.mboxService.mboxListMessages(uuid, mbox, nextPageToken);
   }
 
   @Post('/message')

@@ -9,3 +9,7 @@ export type ResultApi = {
   message?: string;
 }
 
+interface ListMessagesQuery {
+  mbox: string;
+  lastPageToken?: string;
+}

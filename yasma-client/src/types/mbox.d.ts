@@ -1,7 +1,7 @@
 
 export type ApiResult = {
-  data?: object;
-  error?: object;
+  data?: object | null;
+  error?: object | string;
 }
 
 export type MboxPayload = {

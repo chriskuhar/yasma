@@ -11,6 +11,13 @@ import { RedisService } from '../redis/redis.service';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const MailComposer = require('nodemailer/lib/mail-composer');
 
+interface messagesOptions {
+  userId: string;
+  maxResults: number;
+  labelIds: [string];
+  pageToken?: string;
+}
+
 @Injectable()
 export class MboxService {
   constructor(
@@ -51,18 +58,23 @@ export class MboxService {
    * Lists the messages in the user's mailbox.
    *
    */
-  async mboxListMessages(token: string, mbox: string): Promise<string | null> {
+  async mboxListMessages(token: string, mbox: string, pageToken: string): Promise<string | null> {
     try {
       const auth: OAuth2Client =
         await this.authService.loadSavedCredentialsIfExist(token);
       const gmail = google.gmail('v1');
       google.options({ auth });
-      const res = await gmail.users.messages.list({
+      const messageOptions: messagesOptions = {
         userId: 'me',
         maxResults: 15,
         labelIds: [mbox],
-      });
-      const messages = res.data.messages;
+      };
+      if(pageToken) {
+        messageOptions.pageToken = pageToken;
+      }
+      const res = await gmail.users.messages.list(messageOptions);
+      const messages = res.data?.messages;
+      const nextPageToken = res.data?.nextPageToken;
       if (!messages || messages.length === 0) {
         console.log('No messages found.');
         return;
@@ -80,7 +92,6 @@ export class MboxService {
           metaData = {};
           metaData['MessageID'] = message.id;
           for (const header of headers) {
-            console.log(header.name);
             switch (header.name) {
               case 'Subject':
                 metaData['Subject'] = header.value;
@@ -102,7 +113,11 @@ export class MboxService {
         }
         result.push(metaData);
       }
-      return JSON.stringify(result);
+      const payload = {
+        messages: result,
+        nextPageToken: nextPageToken,
+      };
+      return JSON.stringify(payload);
     } catch (error) {
       const message: string =
         error?.message || 'Unknown error listing messages';

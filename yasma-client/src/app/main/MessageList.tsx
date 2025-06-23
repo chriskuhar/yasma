@@ -15,15 +15,17 @@ export function MessageList() {
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
   const { listMessages } = UseApi();
   const [metadata, setMetadata] = useState([]);
+  const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     async function fetchData(mboxName: string) {
       setLoading(true);
-      const result: ApiResult = await listMessages(mboxName);
-      if ( result?.data ) {
-        const messageList: MessageMetaData[] = result.data;
+      const result: ApiResult = await listMessages(mboxName, nextPageToken);
+      if ( result?.data?.messages ) {
+        const messageList: MessageMetaData[] = result.data.messages;
         const data: MessageMetaData[] =(messageList.length) ? result.data : [];
-        setMetadata(data);
+        setMetadata(data.messages);
+        setNextPageToken(result.data.nextPageToken);
       }
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 'use client'
 import { ApiInterface } from "@/types/api";
-import { ApiResult, Message } from "@/types/mbox";
+import { ApiResult, Message, ListMessagesQuery } from "@/types/mbox";
 import useMessageFormat from "@/hooks/UseMessageFormat";
 import { UserSignup } from "@/types/auth-types";
 import { Api } from "@reduxjs/toolkit/query";
@@ -10,7 +10,7 @@ const { stringToB64 } = useMessageFormat();
 function useApi() {
 
   const BASE_URL = 'http://localhost:3001'
-  const erroredApiResult = {
+  const erroredApiResult: ApiResult = {
     data: null,
     error: 'Unknown error occurred.',
   };
@@ -49,8 +49,14 @@ function useApi() {
     return getAuthToken();
   }
 
-  const listMessages = async (mbox: string): Promise<ApiResult> => {
-    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/messages/${mbox}`, 'GET')
+  const listMessages = async (mbox: string, lastPageToken: string | null): Promise<ApiResult> => {
+    const queryObj : ListMessagesQuery = {
+      mbox
+    }
+    if(lastPageToken) {
+      queryObj.lastPageToken = lastPageToken;
+    }
+    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/messages`, 'GET',null,queryObj)
     if(result) {
       return result as ApiResult;
     }
@@ -115,8 +121,22 @@ function useApi() {
     return result.data;
   }
 
-  const api = async (url : string, method : string, body : object | null = null) : Promise<Api> => {
+  const api = async (url : string, method : string, body : object | null = null, queryObj : object | null = null) : Promise<Api> => {
     const result : ApiInterface = {} as ApiInterface;
+    if(queryObj) {
+      const keys = Object.keys(queryObj);
+      const queryElts = [];
+      let qStr = '';
+      for(let key of keys) {
+        if(queryObj[key] !== undefined) {
+          qStr = `${key}=${queryObj[key]}`;
+          queryElts.push(qStr);
+        }
+      }
+      if(queryElts.length > 0) {
+        url += `?${queryElts.join('&')}`;
+      }
+    }
     const options : RequestInit = {
       url,
       method,
