@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import { ApiResult, MessageMetaData } from "@/types/mbox";
 import { useMailStore } from "@/stores/mail-store";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
@@ -17,6 +17,10 @@ export function MessageList() {
   const [metadata, setMetadata] = useState([]);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const observerRef = useRef();
+  const pageRef = useRef(1); // Keeps track of the current page
+  // initial load
   useEffect(() => {
     async function fetchData(mboxName: string) {
       setLoading(true);
@@ -36,6 +40,35 @@ export function MessageList() {
   const handleSetCurrentMessage = (message : MessageMetaData) => {
     setCurrentMessage(message);
   }
+
+  // infinite scroll
+  const loadMoreItems = useCallback(async () => {
+    const mboxName = curMailbox?.name || 'INBOX';
+    const result: ApiResult = await listMessages(mboxName, nextPageToken);
+    if ( result?.data?.messages ) {
+      const messageList: MessageMetaData[] = result.data.messages;
+      const data: MessageMetaData[] =(messageList.length) ? result.data : [];
+      setMetadata((prevMessages) => [...prevMessages, ...data.messages]);
+      setNextPageToken(result.data.nextPageToken);
+    } else {
+      setHasMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMoreItems();
+  }, [loadMoreItems]);
+
+  const lastItemRef = useCallback((node) => {
+    if (observerRef.current) observerRef.current.disconnect();
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        pageRef.current += 1;
+        loadMoreItems();
+      }
+    });
+    if (node) observerRef.current.observe(node);
+  }, [hasMore, loadMoreItems]);
 
   return (
       <>
@@ -63,6 +96,7 @@ export function MessageList() {
                         <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatDateTime(message.DateTime)}</td>
                       </tr>
                   ))}
+                  {hasMore && <tr ref={lastItemRef}><td colSpan={3}>Loading more...</td></tr>}
                   </tbody>
                 </table>
             )
