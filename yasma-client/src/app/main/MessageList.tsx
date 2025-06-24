@@ -91,9 +91,9 @@ export function MessageList() {
                   <tbody>
                   {metadata.map((message, index) => (
                       <tr key={index} onClick={() => handleSetCurrentMessage(message)}>
-                        <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageFrom(message.From)}</td>
-                        <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageSubject(message.Subject)}</td>
-                        <td className={`cursor-pointer ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatDateTime(message.DateTime)}</td>
+                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageFrom(message.From)}</td>
+                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageSubject(message.Subject)}</td>
+                        <td className={`cursor-pointer text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatDateTime(message.DateTime)}</td>
                       </tr>
                   ))}
                   {hasMore && <tr ref={lastItemRef}><td colSpan={3}>Loading more...</td></tr>}
