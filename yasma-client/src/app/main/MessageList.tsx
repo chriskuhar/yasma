@@ -56,14 +56,16 @@ export function MessageList() {
     if (node) observerRef.current.observe(node);
   }, [hasMore, loadMoreItems]);
 
-  const calcRowBackgroundColor = (index: number, message: MessageMetaData) => {
+  const calcRowBackgroundColor = (index: number, message: MessageMetaData): string => {
+    let classes: string = '';
     if(message.MessageID === curMessageID) {
-      return 'bg-blue-300';
+      classes += ' bg-blue-300 ';
+    } else if(message.Read) {
+      classes += ' bg-blue-100 ';
+    } else {
+      classes +=  (index % 2 === 0) ? 'bg-white font-bold' : "bg-blue-50 font-bold"
     }
-    if(message.Read) {
-      return 'bg-blue-100';
-    }
-    return (index % 2 === 0) ? 'bg-white' : "bg-blue-50"
+    return classes
   }
 
   return (
@@ -86,7 +88,7 @@ export function MessageList() {
                   </thead>
                   <tbody>
                   {metadata.map((message, index) => (
-                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`${calcRowBackgroundColor(index, message)}`}>
+                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`border border-white ${calcRowBackgroundColor(index, message)}`}>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
                         <td className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>
