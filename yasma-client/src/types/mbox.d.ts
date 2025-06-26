@@ -31,7 +31,8 @@ export enum LabelListVisibility {
 }
 
 export type MessageMetaDataPayload = {
-  payload: MessageMetaData;
+  messages: MessageMetaData[];
+  nextPageToken: string;
 }
 export type MessageMetaData = {
   MessageID: string;

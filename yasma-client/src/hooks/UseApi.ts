@@ -49,12 +49,12 @@ function useApi() {
     return getAuthToken();
   }
 
-  const listMessages = async (mbox: string, lastPageToken: string | null): Promise<ApiResult> => {
+  const listMessages = async (mbox: string, nextPageToken: string | null): Promise<ApiResult> => {
     const queryObj : ListMessagesQuery = {
       mbox
     }
-    if(lastPageToken) {
-      queryObj.lastPageToken = lastPageToken;
+    if(nextPageToken) {
+      queryObj.nextPageToken = nextPageToken;
     }
     const result: ApiInterface = await api(`${BASE_URL}/api/mbox/messages`, 'GET',null,queryObj)
     if(result) {

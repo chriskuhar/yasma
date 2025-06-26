@@ -1,6 +1,6 @@
 'use client'
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import { ApiResult, MessageMetaData } from "@/types/mbox";
+import {ApiResult, MessageMetaData, MessageMetaDataPayload} from "@/types/mbox";
 import { useMailStore } from "@/stores/mail-store";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
@@ -14,42 +14,44 @@ export function MessageList() {
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
   const { listMessages } = UseApi();
-  const [metadata, setMetadata] = useState([]);
-  const [nextPageToken, setNextPageToken] = useState(null);
+  const [metadata, setMetadata] = useState<MessageMetaData[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [curMessageID, setCurMessageID] = useState("");
   const observerRef = useRef();
   const pageRef = useRef(1); // Keeps track of the current page
+  const nextPageToken = useRef('');
   // initial load
-  useEffect(() => {
-    async function fetchData(mboxName: string) {
-      setLoading(true);
-      const result: ApiResult = await listMessages(mboxName, nextPageToken);
-      if ( result?.data?.messages ) {
-        const messageList: MessageMetaData[] = result.data.messages;
-        const data: MessageMetaData[] =(messageList.length) ? result.data : [];
-        setMetadata(data.messages);
-        setNextPageToken(result.data.nextPageToken);
-      }
-      setLoading(false);
-    }
-    const mailbox = curMailbox?.name || 'INBOX';
-    fetchData(mailbox);
-  }, [curMailbox]);
+  //useEffect(() => {
+  //  async function fetchData(mboxName: string) {
+  //    setLoading(true);
+  //    const result: ApiResult = await listMessages(mboxName, nextPageToken);
+  //    const data : MessageMetaDataPayload = result?.data as MessageMetaDataPayload;
+  //    const messageList: MessageMetaData[] = data?.messages;
+  //    if ( messageList ) {
+  //      setMetadata(messageList);
+  //      setNextPageToken(data.nextPageToken);
+  //    }
+  //    setLoading(false);
+  //  }
+  //  const mailbox = curMailbox?.name || 'INBOX';
+  //  fetchData(mailbox);
+  //}, [curMailbox]);
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
+    setCurMessageID(message.MessageID);
     setCurrentMessage(message);
   }
 
   // infinite scroll
   const loadMoreItems = useCallback(async () => {
     const mboxName = curMailbox?.name || 'INBOX';
-    const result: ApiResult = await listMessages(mboxName, nextPageToken);
-    if ( result?.data?.messages ) {
-      const messageList: MessageMetaData[] = result.data.messages;
-      const data: MessageMetaData[] =(messageList.length) ? result.data : [];
+    const result: ApiResult = await listMessages(mboxName, nextPageToken.current);
+    const data : MessageMetaDataPayload = result?.data as MessageMetaDataPayload;
+    const messageList: MessageMetaData[] = data?.messages;
+    if ( messageList ) {
       setMetadata((prevMessages) => [...prevMessages, ...data.messages]);
-      setNextPageToken(result.data.nextPageToken);
+      nextPageToken.current = data.nextPageToken;
     } else {
       setHasMore(false);
     }
@@ -69,6 +71,13 @@ export function MessageList() {
     });
     if (node) observerRef.current.observe(node);
   }, [hasMore, loadMoreItems]);
+
+  const calcRowBackgroundColor = (index: number, MessageID: string) => {
+    if(MessageID === curMessageID) {
+      return 'bg-blue-200';
+    }
+    return (index % 2 === 0) ? 'bg-white' : "bg-blue-50"
+  }
 
   return (
       <>
@@ -90,13 +99,13 @@ export function MessageList() {
                   </thead>
                   <tbody>
                   {metadata.map((message, index) => (
-                      <tr key={index} onClick={() => handleSetCurrentMessage(message)}>
-                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageFrom(message.From)}</td>
-                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatMessageSubject(message.Subject)}</td>
-                        <td className={`cursor-pointer text-sm ${index % 2 ? 'bg-white' : 'bg-blue-50'}`}>{formatDateTime(message.DateTime)}</td>
+                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`${calcRowBackgroundColor(index, message.MessageID)}`}>
+                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
+                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
+                        <td className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>
                       </tr>
                   ))}
-                  {hasMore && <tr ref={lastItemRef}><td colSpan={3}>Loading more...</td></tr>}
+                  {hasMore && <tr ref={lastItemRef}><td colSpan={3}>Fetching messages...</td></tr>}
                   </tbody>
                 </table>
             )

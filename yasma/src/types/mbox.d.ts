@@ -11,5 +11,5 @@ export type ResultApi = {
 
 interface ListMessagesQuery {
   mbox: string;
-  lastPageToken?: string;
+  nextPageToken?: string;
 }
