@@ -86,10 +86,12 @@ export class MboxService {
           id: message.id,
           format: 'metadata',
         });
+        const readLabel = res.data?.labelIds.find(e => e === 'UNREAD') ? false : true;
         const headers = res?.data?.payload?.headers;
         let metaData = {};
         if (headers && headers.length > 0) {
           metaData = {};
+          metaData['Read'] = readLabel;
           metaData['MessageID'] = message.id;
           for (const header of headers) {
             switch (header.name) {

@@ -21,22 +21,6 @@ export function MessageList() {
   const observerRef = useRef();
   const pageRef = useRef(1); // Keeps track of the current page
   const nextPageToken = useRef('');
-  // initial load
-  //useEffect(() => {
-  //  async function fetchData(mboxName: string) {
-  //    setLoading(true);
-  //    const result: ApiResult = await listMessages(mboxName, nextPageToken);
-  //    const data : MessageMetaDataPayload = result?.data as MessageMetaDataPayload;
-  //    const messageList: MessageMetaData[] = data?.messages;
-  //    if ( messageList ) {
-  //      setMetadata(messageList);
-  //      setNextPageToken(data.nextPageToken);
-  //    }
-  //    setLoading(false);
-  //  }
-  //  const mailbox = curMailbox?.name || 'INBOX';
-  //  fetchData(mailbox);
-  //}, [curMailbox]);
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
     setCurMessageID(message.MessageID);
@@ -72,9 +56,12 @@ export function MessageList() {
     if (node) observerRef.current.observe(node);
   }, [hasMore, loadMoreItems]);
 
-  const calcRowBackgroundColor = (index: number, MessageID: string) => {
-    if(MessageID === curMessageID) {
-      return 'bg-blue-200';
+  const calcRowBackgroundColor = (index: number, message: MessageMetaData) => {
+    if(message.MessageID === curMessageID) {
+      return 'bg-blue-300';
+    }
+    if(message.Read) {
+      return 'bg-blue-100';
     }
     return (index % 2 === 0) ? 'bg-white' : "bg-blue-50"
   }
@@ -99,7 +86,7 @@ export function MessageList() {
                   </thead>
                   <tbody>
                   {metadata.map((message, index) => (
-                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`${calcRowBackgroundColor(index, message.MessageID)}`}>
+                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`${calcRowBackgroundColor(index, message)}`}>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
                         <td className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>

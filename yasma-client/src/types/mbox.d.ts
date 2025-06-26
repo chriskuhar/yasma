@@ -41,6 +41,7 @@ export type MessageMetaData = {
   ReplyTo: string;
   DateTime: string;
   Subject: string;
+  Read: boolean;
 }
 
 export type MessageHeader = {
