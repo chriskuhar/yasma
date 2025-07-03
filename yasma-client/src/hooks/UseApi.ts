@@ -33,6 +33,10 @@ function useApi() {
     }
     return false;
   }
+  const logout = () => {
+    sessionStorage.removeItem('token');
+  }
+
   const signup = async (data: UserSignup) : Promise<ApiInterface> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/auth/signup`, 'POST', {email: data.email, password: data.password, firstName: data.firstName, lastName: data.lastName})
     return result;
@@ -179,6 +183,7 @@ function useApi() {
     newMessage,
     listMessages,
     listMbox,
+    logout,
     authenticate,
     signup,
     isAuthenticated,

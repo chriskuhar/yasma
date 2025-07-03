@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post, Req, Query, UnauthorizedException} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Req, Query, UnauthorizedException, Patch} from '@nestjs/common';
 import { MboxService } from "./mbox.service";
 import { Message } from '../types/message';
 import { SendMessageDto } from './mbox.dto';
@@ -59,5 +59,17 @@ export class MboxController {
     }
     const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxGetMessage(uuid, messageId);
+  }
+
+  @Patch('/message/:messageId')
+  async patchMboxMessageRead(
+    @Param('messageId') messageId: string,
+    @Req() req: Request,
+  ): Promise<ResultApi> {
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
+    }
+    const uuid = req['userContext']['uuid'];
+    return await this.mboxService.mboxMessageMarkRead(uuid, messageId);
   }
 }

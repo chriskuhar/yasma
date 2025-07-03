@@ -7,7 +7,7 @@ import { OAuth2Client } from 'googleapis-common';
 import {
   authenticate,
   authenticateGoogleRedirect,
-  getGoogleAuthenticateURL, LocalAuthOptions, processCode,
+  getGoogleAuthenticateURL, processCode,
 } from './auth.googleAuthenticate';
 import { RedisService } from '../redis/redis.service';
 import * as crypto from 'crypto';
@@ -20,8 +20,7 @@ import * as bcrypt from 'bcrypt';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.send',
+  'https://mail.google.com/',
 ];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first

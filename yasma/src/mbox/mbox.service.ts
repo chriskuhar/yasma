@@ -144,6 +144,9 @@ export class MboxService {
         id: messageID,
         format: 'full',
       });
+      // mark message read
+      await this.mboxMessageMarkRead(token, messageID);
+      // return message
       return res?.data?.payload as Message;
     } catch (error) {
       // TODO need to deal with error cases
@@ -271,5 +274,29 @@ export class MboxService {
   getNowDateRFC2822() {
     const now = new Date();
     return format(now, "EEE, dd MMM yyyy HH:mm:ss xxxx");
+  }
+
+  async mboxMessageMarkRead(token: string, messageID: string): Promise<Object> {
+    try {
+      const auth: OAuth2Client =
+        await this.authService.loadSavedCredentialsIfExist(token);
+      const gmail = google.gmail('v1');
+      google.options({ auth });
+      const res = await gmail.users.messages.modify({
+        userId: 'me',
+        id: messageID,
+        requestBody: {
+          removeLabelIds: ['UNREAD'],
+        },
+      });
+      return res?.data?.payload as Object;
+    } catch (error) {
+      // TODO need to deal with error cases
+      const message: string =
+        error.response?.data?.error_description ||
+        'Unknown error listing mailbox';
+      process.stdout.write(`${message} ${new Error().stack}`);
+      throw new UnauthorizedException(message);
+    }
   }
 }
