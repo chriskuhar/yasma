@@ -6,6 +6,8 @@ import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
 import UseApi from "@/hooks/UseApi";
 import { Spinner } from "@material-tailwind/react";
+import {MdCheckCircle, MdRadioButtonChecked, MdRadioButtonUnchecked} from "react-icons/md";
+import {GoSmiley, GoSquareFill} from "react-icons/go";
 
 
 export function MessageList() {
@@ -78,10 +80,17 @@ export function MessageList() {
     let classes: string = '';
     if(message.MessageID === curMessageID) {
       classes += ' bg-blue-300 ';
-    } else if(message.Read) {
-      classes += ' bg-blue-100 ';
     } else {
-      classes +=  (index % 2 === 0) ? 'bg-white font-bold' : "bg-blue-50 font-bold"
+      //classes +=  (index % 2 === 0) ? 'bg-white font-bold' : "bg-blue-50 font-bold"
+      classes += 'bg-white';
+    }
+    return classes
+  }
+
+  const calcReadStatus = (message: MessageMetaData): string => {
+    let classes: string = '';
+    if(message.Read) {
+      classes += ' hidden ';
     }
     return classes
   }
@@ -98,6 +107,7 @@ export function MessageList() {
                   <thead>
                   {metadata.length > 0 &&
                       <tr className="bg-white">
+                          <th>&nbsp;</th>
                           <th className="w-40">From</th>
                           <th className="w-auto">Subject</th>
                           <th className="w-40">Date</th>
@@ -107,6 +117,7 @@ export function MessageList() {
                   <tbody>
                   {metadata.map((message, index) => (
                       <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`border border-white ${calcRowBackgroundColor(index, message)}`}>
+                        <td><div className={`text-sm ${calcReadStatus(message)}`}><GoSquareFill style={{color: 'black'}}/></div></td>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
                         <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
                         <td className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>
