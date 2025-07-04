@@ -106,7 +106,7 @@ function useApi() {
     return [];
   }
 
-  const getAuthToken = (): boolean => {
+  const getAuthToken = (): boolean | string => {
     let token: string | null = null;
     if (typeof window !== 'undefined') {
       token = sessionStorage.getItem('token');

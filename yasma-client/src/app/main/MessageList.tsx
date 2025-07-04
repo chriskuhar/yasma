@@ -22,9 +22,24 @@ export function MessageList() {
   const pageRef = useRef(1); // Keeps track of the current page
   const nextPageToken = useRef('');
 
+  const setMessageRead = (messageID: string): void => {
+    const copy: MessageMetaData[] = [...metadata];
+    let msgCopy: MessageMetaData;
+    for (let i = 0; i < metadata.length; i++) {
+      if(copy[i].MessageID === messageID) {
+        msgCopy = {...copy[i]}
+        msgCopy.Read = true;
+        copy[i] = msgCopy;
+      }
+    }
+    setMetadata(copy);
+  }
+
   const handleSetCurrentMessage = (message : MessageMetaData) => {
     setCurMessageID(message.MessageID);
     setCurrentMessage(message);
+    // set message read in local copy
+    setMessageRead(message.MessageID);
   }
 
   // infinite scroll
@@ -42,7 +57,10 @@ export function MessageList() {
   }, []);
 
   useEffect(() => {
-    loadMoreItems();
+    async function  callLoadMoreItems (){
+      await loadMoreItems();
+    }
+    callLoadMoreItems();
   }, [loadMoreItems]);
 
   const lastItemRef = useCallback((node) => {
