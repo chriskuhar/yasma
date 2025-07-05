@@ -84,6 +84,23 @@ function useApi() {
     return [];
   }
 
+  const deleteMessage = async (messageID: string): Promise<Message> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message/${messageID}`, 'DELETE')
+    if(result) {
+      try {
+        if( result.data ) {
+          return result.data;
+        }
+        return {};
+      }
+      catch(error) {
+        console.log(error);
+      }
+      return result.data as Message;
+    }
+    return [];
+  }
+
   const newMessage = async (message: string, recipient: string, subject: string): Promise<string> => {
     const data = {
       recipient,
@@ -180,6 +197,7 @@ function useApi() {
   };
   return {
     getMessage,
+    deleteMessage,
     newMessage,
     listMessages,
     listMbox,

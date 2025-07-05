@@ -35,6 +35,13 @@ export function MessageView() {
     const curMessageID = curMessage?.MessageID;
     if(curMessageID) {
       fetchData(curMessageID);
+    } else {
+      const targetElement = shadowRootRef.current;
+      let wrapper = targetElement.querySelector(".shadow-wrapper");
+      if (wrapper) {
+        // If wrapper exists, remove it to remove the Shadow DOM root
+        targetElement.removeChild(wrapper);
+      }
     }
   }, [curMessage]);
 

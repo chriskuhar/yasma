@@ -1,13 +1,12 @@
 'use client'
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {ApiResult, MessageMetaData, MessageMetaDataPayload} from "@/types/mbox";
+import { ApiResult, MessageMetaData, MessageMetaDataPayload } from "@/types/mbox";
 import { useMailStore } from "@/stores/mail-store";
 import useFormatDateTime from "@/hooks/UseFormatDateTime"
 import useMessageListFormatting from "@/hooks/UseMessageListFormatting";
 import UseApi from "@/hooks/UseApi";
 import { Spinner } from "@material-tailwind/react";
-import {MdCheckCircle, MdRadioButtonChecked, MdRadioButtonUnchecked} from "react-icons/md";
-import {GoSmiley, GoSquareFill} from "react-icons/go";
+import { GoSquareFill, GoTrash } from "react-icons/go";
 
 
 export function MessageList() {
@@ -15,7 +14,7 @@ export function MessageList() {
   const curMailbox = useMailStore((state) => state.mailboxState);
   const { formatDateTime } = useFormatDateTime();
   const { formatMessageFrom, formatMessageSubject } = useMessageListFormatting();
-  const { listMessages } = UseApi();
+  const { listMessages, deleteMessage } = UseApi();
   const [metadata, setMetadata] = useState<MessageMetaData[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -35,6 +34,13 @@ export function MessageList() {
       }
     }
     setMetadata(copy);
+  }
+
+  const removeDeletedMessage = (messageID: string): void => {
+    const copy: MessageMetaData[] = [...metadata];
+    const filtered = copy.filter((m: MessageMetaData) => m.MessageID !== messageID);
+    setMetadata(filtered);
+    setCurrentMessage('');
   }
 
   const handleSetCurrentMessage = (message : MessageMetaData) => {
@@ -95,6 +101,14 @@ export function MessageList() {
     return classes
   }
 
+  const handleDeleteMessage = async (messageID: string): void => {
+    console.log(messageID);
+
+    const result: ApiResult = await deleteMessage(messageID);
+    // remove message from list;
+    removeDeletedMessage(messageID);
+  }
+
   return (
       <>
         {loading ?
@@ -108,19 +122,21 @@ export function MessageList() {
                   {metadata.length > 0 &&
                       <tr className="bg-white">
                           <th>&nbsp;</th>
-                          <th className="w-40">From</th>
+                          <th className="w-30">From</th>
                           <th className="w-auto">Subject</th>
+                          <th className="w-5"></th>
                           <th className="w-40">Date</th>
                       </tr>
                   }
                   </thead>
                   <tbody>
                   {metadata.map((message, index) => (
-                      <tr key={index} onClick={() => handleSetCurrentMessage(message)} className={`border border-white ${calcRowBackgroundColor(index, message)}`}>
-                        <td><div className={`text-sm ${calcReadStatus(message)}`}><GoSquareFill style={{color: 'black'}}/></div></td>
-                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
-                        <td className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
-                        <td className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>
+                      <tr key={index} className={`border border-white ${calcRowBackgroundColor(index, message)}`}>
+                        <td onClick={() => handleSetCurrentMessage(message)}><div className={`text-sm ${calcReadStatus(message)}`}><GoSquareFill color={`Green`}/></div></td>
+                        <td onClick={() => handleSetCurrentMessage(message)} className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageFrom(message.From)}</td>
+                        <td onClick={() => handleSetCurrentMessage(message)} className={`cursor-pointer truncate whitespace-nowrap text-sm`}>{formatMessageSubject(message.Subject)}</td>
+                        <td className={`cursor-pointer text-sm`} onClick={() => handleDeleteMessage(message.MessageID)}><GoTrash color={`red`}/></td>
+                        <td onClick={() => handleSetCurrentMessage(message)} className={`cursor-pointer text-sm whitespace-nowrap`}>{formatDateTime(message.DateTime)}</td>
                       </tr>
                   ))}
                   {hasMore && <tr ref={lastItemRef}><td colSpan={3}>Fetching messages...</td></tr>}

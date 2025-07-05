@@ -276,7 +276,7 @@ export class MboxService {
     return format(now, "EEE, dd MMM yyyy HH:mm:ss xxxx");
   }
 
-  async mboxMessageMarkRead(token: string, messageID: string): Promise<Object> {
+  async mboxMessageMarkRead(token: string, messageID: string): Promise<ResultApi> {
     try {
       const auth: OAuth2Client =
         await this.authService.loadSavedCredentialsIfExist(token);
@@ -289,12 +289,45 @@ export class MboxService {
           removeLabelIds: ['UNREAD'],
         },
       });
-      return res?.data?.payload as Object;
+      const response: ResultApi = {};
+      if (res.status === 200) {
+        response.message = `Message marked read successfully.`;
+      } else {
+        response.error = `Error marking message read.`;
+      }
+      return response;
     } catch (error) {
       // TODO need to deal with error cases
       const message: string =
         error.response?.data?.error_description ||
-        'Unknown error listing mailbox';
+        'Unknown error marking message read';
+      process.stdout.write(`${message} ${new Error().stack}`);
+      throw new UnauthorizedException(message);
+    }
+  }
+
+  async mboxMessageDelete(token: string, messageID: string): Promise<ResultApi> {
+    try {
+      const auth: OAuth2Client =
+        await this.authService.loadSavedCredentialsIfExist(token);
+      const gmail = google.gmail('v1');
+      google.options({ auth });
+      const res = await gmail.users.messages.delete({
+        userId: 'me',
+        id: messageID,
+      });
+      const response: ResultApi = {};
+      if (res.status === 204) {
+        response.message = `Message deleted successfully.`;
+      } else {
+        response.error = `Error deleting Message.`;
+      }
+      return response;
+    } catch (error) {
+      // TODO need to deal with error cases
+      const message: string =
+        error.response?.data?.error_description ||
+        'Unknown error deleting message';
       process.stdout.write(`${message} ${new Error().stack}`);
       throw new UnauthorizedException(message);
     }
