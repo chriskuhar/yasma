@@ -1,9 +1,15 @@
-import {HttpException, HttpStatus, Injectable, UnauthorizedException} from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { google } from 'googleapis';
 import { AuthService } from '../auth/auth.service';
-import { OAuth2Client, GlobalOptions } from 'googleapis-common';
-import {Header, Message, MessageAsciiText, MimePart} from '../types/message';
-import {MessageSendApi, ResultApi} from '../types/mbox';
+import { OAuth2Client } from 'googleapis-common';
+import { Header, Message, MessageAsciiText } from '../types/message';
+import { MessageSendApi, ResultApi, GetAttachment} from '../types/mbox';
 import { JSDOM } from 'jsdom';
 import { format } from 'date-fns';
 import { RedisService } from '../redis/redis.service';
@@ -152,10 +158,57 @@ export class MboxService {
       // TODO need to deal with error cases
       const message: string =
         error.response?.data?.error_description ||
-        'Unknown error listing mailbox';
+        'Unknown error fetching message';
       process.stdout.write(`${message} ${new Error().stack}`);
-      throw new UnauthorizedException(message);
+      throw new InternalServerErrorException(message);
     }
+  }
+
+  /**
+   * Get mailbox attachment
+   *
+   */
+  async mboxGetMessageAttachment(
+    token: string,
+    messageId: string,
+    attachmentId: string,
+  ): Promise<GetAttachment | null> {
+    try {
+      const auth: OAuth2Client =
+        await this.authService.loadSavedCredentialsIfExist(token);
+      const gmail = google.gmail('v1');
+      google.options({ auth });
+      const res = await gmail.users.messages.attachments.get({
+        userId: 'me',
+        messageId,
+        id: attachmentId,
+      });
+
+      //return res?.data?.data as Message;
+      // since the response image is in base64URL, convert to base64 encoding
+      const b64Encoded = this.base64urlToBase64(res?.data?.data as string);
+      return {
+        status: res.status,
+        data: b64Encoded
+      };
+    } catch (error) {
+      // TODO need to deal with error cases
+      const message: string =
+        error.response?.data?.error_description ||
+        'Unknown error fetching message';
+      process.stdout.write(`${message} ${new Error().stack}`);
+      throw new InternalServerErrorException(message);
+    }
+  }
+
+  base64urlToBase64(base64url: string): string {
+    // Replace Base64URL-specific characters with standard Base64 characters
+    let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    // Add padding if necessary
+    // Base64 strings must have a length that is a multiple of 4
+    const paddingNeeded = (4 - (base64.length % 4)) % 4;
+    base64 += '='.repeat(paddingNeeded);
+    return base64;
   }
 
   /**
@@ -196,8 +249,10 @@ export class MboxService {
         Buffer.from(assembledMessage).toString('base64');
       const gmail = google.gmail('v1');
       google.options({ auth });
-      gmail.users.messages.send({
+      gmail.users.messages
+        .send({
           userId: 'me',
+          uploadType: 'media',
           requestBody: {
             raw: encodedAssembledMessage,
           },

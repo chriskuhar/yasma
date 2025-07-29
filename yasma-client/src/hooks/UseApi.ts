@@ -1,13 +1,11 @@
 'use client'
 import { ApiInterface } from "@/types/api";
 import { ApiResult, Message, ListMessagesQuery } from "@/types/mbox";
-import useMessageFormat from "@/hooks/UseMessageFormat";
 import { UserSignup } from "@/types/auth-types";
-import { Api } from "@reduxjs/toolkit/query";
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const { stringToB64 } = useMessageFormat();
+import useB64 from "@/hooks/useB64";
 
 function useApi() {
+  const { stringToB64 } = useB64();
 
   const BASE_URL = 'http://localhost:3001'
   const erroredApiResult: ApiResult = {
@@ -84,6 +82,23 @@ function useApi() {
     return [];
   }
 
+  const getMessageAttachment = async (messageID: string, attachmentId: string): Promise<Message> => {
+    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message/${messageID}/${attachmentId}`, 'GET')
+    if(result) {
+      try {
+        if( result.data ) {
+          return result.data;
+        }
+        return {};
+      }
+      catch(error) {
+        console.log(error);
+      }
+      return result.data as Message;
+    }
+    return [];
+  }
+
   const deleteMessage = async (messageID: string): Promise<Message> => {
     const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message/${messageID}`, 'DELETE')
     if(result) {
@@ -107,7 +122,7 @@ function useApi() {
       subject,
       message: stringToB64(message),
     }
-    const result: ApiInterface = await api(`${BASE_URL}/api/mbox/message`, 'POST', data)
+    const result: ApiResult = await api(`${BASE_URL}/api/mbox/message`, 'POST', data)
     if(result) {
       try {
         if( result.data ) {
@@ -142,7 +157,7 @@ function useApi() {
     return result.data;
   }
 
-  const api = async (url : string, method : string, body : object | null = null, queryObj : object | null = null) : Promise<Api> => {
+  const api = async (url : string, method : string, body : object | null = null, queryObj : object | null = null) : Promise<ApiResult> => {
     const result : ApiInterface = {} as ApiInterface;
     if(queryObj) {
       const keys = Object.keys(queryObj);
@@ -197,6 +212,7 @@ function useApi() {
   };
   return {
     getMessage,
+    getMessageAttachment,
     deleteMessage,
     newMessage,
     listMessages,

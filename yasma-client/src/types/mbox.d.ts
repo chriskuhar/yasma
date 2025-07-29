@@ -4,6 +4,11 @@ export type ApiResult = {
   error?: object | string;
 }
 
+interface ListMessagesQuery {
+  mbox: string;
+  nextPageToken?: string;
+}
+
 export type MboxPayload = {
   payload: Mbox;
 }
@@ -30,11 +35,11 @@ export enum LabelListVisibility {
   LabelHide = "labelHide",
 }
 
-export type MessageMetaDataPayload = {
+export interface MessageMetaDataPayload {
   messages: MessageMetaData[];
   nextPageToken: string;
 }
-export type MessageMetaData = {
+export interface MessageMetaData {
   MessageID: string;
   To: string;
   From: string;
@@ -44,29 +49,27 @@ export type MessageMetaData = {
   Read: boolean;
 }
 
-export type MessageHeader = {
+export interface MimeMediaObj {
+  cid: string;
+  media: string;
+}
+
+export interface MessageHeader {
   name: string;
   value: string;
 }
 
-export type MessageBody = {
+export interface MessageBody {
   size: int;
   data: string;
+  attachmentId: string;
 }
 
-export type  MessageMimeType = {
-  partId: string;
-  mimeType: string;
-  filename: string;
-  headers: MessageHeader[];
-  body: MessageBody;
-}
-
-export type Message = {
+export interface Message {
   partId?: string;
   mimeType:? string;
   filename?: string;
   headers?: MessageHeader[];
   body?: MessageBody;
-  parts?: MessageMimeType[];
+  parts?: Message[];
 }

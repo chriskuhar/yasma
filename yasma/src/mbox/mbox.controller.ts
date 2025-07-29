@@ -2,7 +2,7 @@ import {Body, Controller, Get, Param, Post, Req, Query, UnauthorizedException, P
 import { MboxService } from "./mbox.service";
 import { Message } from '../types/message';
 import { SendMessageDto } from './mbox.dto';
-import { ResultApi } from '../types/mbox';
+import {GetAttachment, ResultApi} from '../types/mbox';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('/api/mbox')
@@ -59,6 +59,23 @@ export class MboxController {
     }
     const uuid = req['userContext']['uuid'];
     return await this.mboxService.mboxGetMessage(uuid, messageId);
+  }
+
+  @Get('/message/:messageId/:attachmentId')
+  async getMboxMessageAttachment(
+    @Param('messageId') messageId: string,
+    @Param('attachmentId') attachmentId: string,
+    @Req() req: Request,
+  ): Promise<GetAttachment> {
+    if (!req['userContext'] || !req['userContext']['uuid']) {
+      throw new UnauthorizedException();
+    }
+    const uuid = req['userContext']['uuid'];
+    return await this.mboxService.mboxGetMessageAttachment(
+      uuid,
+      messageId,
+      attachmentId,
+    );
   }
 
   @Patch('/message/:messageId')

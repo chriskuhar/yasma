@@ -11,6 +11,9 @@
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
     "@tiptap/core": "^2.11.5",
+    "@tiptap/extension-dropcursor": "^2.25.0",
+    "@tiptap/extension-file-handler": "^2.25.0",
+    "@tiptap/extension-image": "^2.25.0",
     "@tiptap/extension-link": "^2.11.5",
     "@tiptap/extension-paragraph": "^2.11.5",
     "@tiptap/pm": "^2.11.5",

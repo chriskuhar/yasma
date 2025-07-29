@@ -13,3 +13,8 @@ interface ListMessagesQuery {
   mbox: string;
   nextPageToken?: string;
 }
+
+export interface GetAttachment {
+  status: number;
+  data: string;
+}

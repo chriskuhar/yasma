@@ -11,7 +11,7 @@ export function MessageView() {
   useEffect(() => {
     async function fetchData(messageID: string) {
       const result = await getMessage(messageID);
-      const rawMessage = messageRender(result);
+      const rawMessage = await messageRender(result, messageID);
       const parser = new DOMParser();
       const targetElement = shadowRootRef.current;
       const messageDoc = parser.parseFromString(rawMessage, 'text/html');

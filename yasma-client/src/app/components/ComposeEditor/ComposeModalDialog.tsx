@@ -1,13 +1,15 @@
 import {
   Button,
   Dialog,
-  DialogHeader,
   DialogBody,
   DialogFooter,
   Input,
 } from "@material-tailwind/react";
 import { Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from '@tiptap/extension-image';
+import Dropcursor from '@tiptap/extension-dropcursor'
+import FileHandler from '@tiptap/extension-file-handler'
 import { ComposeEditorToolbar } from "@/app/components/ComposeEditor/ComposeEditorToolbar";
 import { useForm, SubmitHandler } from "react-hook-form"
 import useApi from "@/hooks/UseApi";
@@ -29,13 +31,57 @@ export function ComposeModalDialog() {
   } = useForm<IFormInput>();
   const curOpenState = useMailStore((state) => state.composeDialogState.composeModalDialogOpen);
   const handleClose = async () => {
+    reset();
     setComposeModalDialogOpen(false);
     editor.destroy();
 
   }
   const editor = new Editor({
     //extensions: [StarterKit, Paragraph],
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Image,
+      Dropcursor,
+      FileHandler.configure({
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+        onDrop: (currentEditor, files, pos) => {
+          files.forEach(file => {
+            const fileReader = new FileReader()
+
+            fileReader.readAsDataURL(file)
+            fileReader.onload = () => {
+              currentEditor.chain().insertContentAt(pos, {
+                type: 'image',
+                attrs: {
+                  src: fileReader.result,
+                },
+              }).focus().run()
+            }
+          })
+        },
+        onPaste: (currentEditor, files, htmlContent) => {
+          files.forEach(file => {
+            if (htmlContent) {
+              // if there is htmlContent, stop manual insertion & let other extensions handle insertion via inputRule
+              // you could extract the pasted file from this url string and upload it to a server for example
+              return false
+            }
+
+            const fileReader = new FileReader()
+
+            fileReader.readAsDataURL(file)
+            fileReader.onload = () => {
+              currentEditor.chain().insertContentAt(currentEditor.state.selection.anchor, {
+                type: 'image',
+                attrs: {
+                  src: fileReader.result,
+                },
+              }).focus().run()
+            }
+          })
+        },
+      }),
+    ],
     content: '<p>Hello World <b>Bold</b> Today! 🌎️</p>',
   })
   if(!editor) return null;
@@ -45,8 +91,7 @@ export function ComposeModalDialog() {
 
   const handleSend: SubmitHandler<IFormInput> = async (data) => {
     const result: string = await newMessage(editor.getHTML(), data.recipients, data.subject);
-    console.log(result);
-    if(result === 'Success') {
+    if(result?.message === 'Success') {
       reset();
       setComposeModalDialogOpen(false);
       editor.destroy();
@@ -99,6 +144,7 @@ export function ComposeModalDialog() {
                 color="red"
                 onClick={handleClose}
                 className="mr-1"
+                form={`messageForm`}
             >
               <span>Cancel</span>
             </Button>
