@@ -22,6 +22,7 @@ export function MessageList() {
   const observerRef = useRef();
   const pageRef = useRef(1); // Keeps track of the current page
   const nextPageToken = useRef('');
+  const prevCurMailbox = useRef('');
 
   const setMessageRead = (messageID: string): void => {
     const copy: MessageMetaData[] = [...metadata];
@@ -53,16 +54,29 @@ export function MessageList() {
   // infinite scroll
   const loadMoreItems = useCallback(async () => {
     const mboxName = curMailbox?.name || 'INBOX';
+    let overwrite = false;
+    if(mboxName !== prevCurMailbox.current) {
+      nextPageToken.current = '';
+      overwrite = true;
+    }
+
     const result: ApiResult = await listMessages(mboxName, nextPageToken.current);
     const data : MessageMetaDataPayload = result?.data as MessageMetaDataPayload;
     const messageList: MessageMetaData[] = data?.messages;
     if ( messageList ) {
-      setMetadata((prevMessages) => [...prevMessages, ...data.messages]);
+      if(overwrite) {
+        setMetadata(data.messages);
+      }
+      else {
+        // append
+        setMetadata((prevMessages) => [...prevMessages, ...data.messages]);
+      }
       nextPageToken.current = data.nextPageToken;
     } else {
       setHasMore(false);
     }
-  }, []);
+    prevCurMailbox.current = mboxName;
+  }, [curMailbox]);
 
   useEffect(() => {
     async function  callLoadMoreItems (){
