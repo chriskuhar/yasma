@@ -10,12 +10,6 @@ import { IconContext } from "react-icons";
 
 
 export default function Home() {
-  const { isAuthenticated } = useApi();
-  const testval = isAuthenticated();
-  console.log(testval);
-  if (!isAuthenticated()) {
-    redirect('/login');
-  }
   return (
       <IconContext.Provider value={{ color: "blue", className: "global-class-name" }}>
         <div className="flex flex-col h-screen w-screen bg-blue-100"  >
