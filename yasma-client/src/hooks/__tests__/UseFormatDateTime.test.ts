@@ -26,30 +26,30 @@ describe('useFormatDateTime', () => {
       expect(result).toMatch(/^\d{1,2}:\d{2}\s(AM|PM)$/);
     });
 
-    it('should format non-today date with full date and time', () => {
+    it('should format non-today date with full date and time (without AM/PM)', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const timestamp = yesterday.toISOString();
       
       const result = hook.formatDateTime(timestamp);
       
-      // Should match format like "12/25/2023, 2:30 PM"
-      expect(result).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM)$/);
+      // Should match format like "12/25/2023, 2:30" (no AM/PM)
+      expect(result).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/);
     });
 
     it('should handle different time formats correctly', () => {
       const testCases = [
         {
           date: new Date('2023-12-25T10:30:00Z'),
-          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM)$/
+          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/
         },
         {
           date: new Date('2023-12-25T22:45:00Z'),
-          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM)$/
+          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/
         },
         {
           date: new Date('2023-12-25T00:00:00Z'),
-          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM)$/
+          expectedPattern: /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/
         }
       ];
 
@@ -79,8 +79,8 @@ describe('useFormatDateTime', () => {
 
       invalidDates.forEach(invalidDate => {
         const result = hook.formatDateTime(invalidDate);
-        // Should return empty string or handle gracefully
-        expect(typeof result).toBe('string');
+        // Should return empty string for invalid dates
+        expect(result).toBe('');
       });
     });
 
@@ -90,8 +90,8 @@ describe('useFormatDateTime', () => {
       
       const result = hook.formatDateTime(timestamp);
       
-      // Should be a valid date format
-      expect(result).toMatch(/^(\d{1,2}:\d{2}\s(AM|PM)|\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM))$/);
+      // Should be a valid date format (non-today, so no AM/PM)
+      expect(result).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/);
     });
   });
 
@@ -104,9 +104,9 @@ describe('useFormatDateTime', () => {
       const todayResult = hook.formatDateTime(today.toISOString());
       const yesterdayResult = hook.formatDateTime(yesterday.toISOString());
       
-      // Today should show time only, yesterday should show full date
+      // Today should show time only with AM/PM, yesterday should show full date without AM/PM
       expect(todayResult).toMatch(/^\d{1,2}:\d{2}\s(AM|PM)$/);
-      expect(yesterdayResult).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(AM|PM)$/);
+      expect(yesterdayResult).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}$/);
     });
   });
 });

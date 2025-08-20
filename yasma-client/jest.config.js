@@ -1,5 +1,4 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
@@ -16,8 +15,7 @@ module.exports = {
     '!src/**/*.stories.{js,jsx,ts,tsx}',
   ],
   transform: {
-    '^.+\\.[jt]sx?$': 'babel-jest', // or 'ts-jest' if using TypeScript
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {configFile: './babel-jest.config.js'}],
   },
   transformIgnorePatterns: [
     'node_modules/(?!(react-icons)/)',
@@ -27,15 +25,4 @@ module.exports = {
     '**/__tests__/**/*.(ts|tsx|js)',
     '**/*.(test|spec).(ts|tsx|js)',
   ],
-  globals: {
-    transform: {
-      tsconfig: {
-        'ts-jest': {
-          tsconfig: {
-            jsx: 'react-jsx',
-          },
-        },
-      }
-    }
-  },
 };

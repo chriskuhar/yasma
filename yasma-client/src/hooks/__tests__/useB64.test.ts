@@ -1,4 +1,27 @@
 import { renderHook } from '@testing-library/react';
+
+// Mock the base64-js library before importing the hook
+jest.mock('base64-js', () => ({
+  __esModule: true,
+  default: {
+    toByteArray: jest.fn((b64: string) => {
+      try {
+        return new Uint8Array(Buffer.from(b64, 'base64'));
+      } catch {
+        throw new Error('Invalid base64');
+      }
+    }),
+    fromByteArray: jest.fn((bytes: Uint8Array) => {
+      try {
+        return Buffer.from(bytes).toString('base64');
+      } catch {
+        throw new Error('Invalid bytes');
+      }
+    }),
+  },
+}));
+
+// Import the hook after mocking
 import useB64 from '../useB64';
 
 describe('useB64', () => {
@@ -39,8 +62,8 @@ describe('useB64', () => {
 
     it('should handle errors gracefully', () => {
       // Mock base64js to throw an error
-      const originalFromByteArray = require('base64-js').fromByteArray;
-      require('base64-js').fromByteArray = jest.fn().mockImplementation(() => {
+      const originalFromByteArray = require('base64-js').default.fromByteArray;
+      require('base64-js').default.fromByteArray = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -49,7 +72,7 @@ describe('useB64', () => {
       expect(result).toBe('');
       
       // Restore original function
-      require('base64-js').fromByteArray = originalFromByteArray;
+      require('base64-js').default.fromByteArray = originalFromByteArray;
     });
   });
 
@@ -89,8 +112,8 @@ describe('useB64', () => {
 
     it('should handle errors gracefully', () => {
       // Mock base64js to throw an error
-      const originalToByteArray = require('base64-js').toByteArray;
-      require('base64-js').toByteArray = jest.fn().mockImplementation(() => {
+      const originalToByteArray = require('base64-js').default.toByteArray;
+      require('base64-js').default.toByteArray = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -99,7 +122,7 @@ describe('useB64', () => {
       expect(result).toBeNull();
       
       // Restore original function
-      require('base64-js').toByteArray = originalToByteArray;
+      require('base64-js').default.toByteArray = originalToByteArray;
     });
   });
 

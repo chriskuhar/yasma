@@ -6,6 +6,12 @@ function useFormatDateTime() {
       return "";
     }
     const date = new Date(timestamp);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+    
     let result: string;
     if(isToday(date)) {
       result = format(date, "h:mm a");

@@ -13,18 +13,23 @@ function useFilterMailboxes() {
   }
 
   const filter = (mbox: Mbox): boolean => {
-    console.log(mbox.name)
-    if(mbox.name.indexOf('[Imap]/') >= 0) {
-      return false
-    }
-    else if(mbox.labelListVisibility && mbox.labelListVisibility.toLocaleLowerCase() === LABEL_SHOW.toLowerCase()) {
-      return true;
-    }
-    else if(mbox.name.indexOf('CATEGORY_') >= 0) {
-      return false
+    // Always exclude mailboxes with [Imap]/ prefix
+    if(mbox.name.toUpperCase().indexOf('[Imap]/'.toUpperCase()) >= 0) {
+      return false;
     }
 
-    return true;
+    // Always exclude mailboxes with CATEGORY_ prefix
+    if(mbox.name.toUpperCase().indexOf('CATEGORY_'.toUpperCase()) >= 0) {
+      return false;
+    }
+
+    // Only include mailboxes with labelListVisibility set to labelShow (case insensitive)
+    if(mbox.labelListVisibility && mbox.labelListVisibility.toLowerCase() === LABEL_SHOW.toLowerCase()) {
+      return true;
+    }
+
+    // Exclude all other mailboxes
+    return false;
   }
 
   return { filterMailboxes };
