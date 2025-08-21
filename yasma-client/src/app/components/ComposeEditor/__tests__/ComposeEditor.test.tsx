@@ -12,7 +12,7 @@ jest.mock('@tiptap/react', () => ({
   ),
 }));
 
-jest.mock('@/app/components/ComposeEditorToolbar', () => ({
+jest.mock('../ComposeEditorToolbar', () => ({
   ComposeEditorToolbar: ({ editor }: { editor: never }) => (
     <div data-testid="compose-editor-toolbar" data-editor={editor ? 'present' : 'missing'}>
       Compose Editor Toolbar

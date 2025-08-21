@@ -1,6 +1,6 @@
 import StarterKit from "@tiptap/starter-kit";
 import { useEditor, EditorContent } from '@tiptap/react'
-import { ComposeEditorToolbar } from "@/app/components/ComposeEditorToolbar";
+import { ComposeEditorToolbar } from "./ComposeEditorToolbar";
 
 type TiptapProps = {
     content?: string

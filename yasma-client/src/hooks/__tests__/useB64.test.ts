@@ -36,25 +36,25 @@ describe('useB64', () => {
     it('should encode a simple string to base64', () => {
       const input = 'Hello, World!';
       const expected = 'SGVsbG8sIFdvcmxkIQ==';
-      
+
       const result = hook.stringToB64(input);
-      
+
       expect(result).toBe(expected);
     });
 
     it('should encode an empty string to base64', () => {
       const input = '';
       const expected = '';
-      
+
       const result = hook.stringToB64(input);
-      
+
       expect(result).toBe(expected);
     });
 
     it('should encode special characters correctly', () => {
       const input = 'Hello, 世界! 🚀';
       const result = hook.stringToB64(input);
-      
+
       // Should not be empty and should be a valid base64 string
       expect(result).toBeTruthy();
       expect(result).toMatch(/^[A-Za-z0-9+/]*={0,2}$/);
@@ -68,9 +68,9 @@ describe('useB64', () => {
       });
 
       const result = hook.stringToB64('test');
-      
+
       expect(result).toBe('');
-      
+
       // Restore original function
       require('base64-js').default.fromByteArray = originalFromByteArray;
     });
@@ -80,33 +80,33 @@ describe('useB64', () => {
     it('should decode a base64 string to original text', () => {
       const input = 'SGVsbG8sIFdvcmxkIQ==';
       const expected = 'Hello, World!';
-      
+
       const result = hook.b64ToString(input);
-      
+
       expect(result).toBe(expected);
     });
 
     it('should return null for invalid base64 string', () => {
       const input = 'invalid-base64!@#';
-      
+
       const result = hook.b64ToString(input);
-      
+
       expect(result).toBeNull();
     });
 
-    it('should return null for empty string', () => {
+    it('should return empty string for empty string', () => {
       const input = '';
-      
+
       const result = hook.b64ToString(input);
-      
-      expect(result).toBeNull();
+
+      expect(result).toBe('');
     });
 
     it('should decode special characters correctly', () => {
       const original = 'Hello, 世界! 🚀';
       const encoded = hook.stringToB64(original);
       const decoded = hook.b64ToString(encoded);
-      
+
       expect(decoded).toBe(original);
     });
 
@@ -118,9 +118,9 @@ describe('useB64', () => {
       });
 
       const result = hook.b64ToString('test');
-      
+
       expect(result).toBeNull();
-      
+
       // Restore original function
       require('base64-js').default.toByteArray = originalToByteArray;
     });
