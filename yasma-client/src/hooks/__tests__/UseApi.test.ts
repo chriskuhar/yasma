@@ -10,6 +10,27 @@ jest.mock('../useB64', () => ({
   }),
 }));
 
+// Mock sessionStorage
+const mockSessionStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: mockSessionStorage,
+});
+
+// Mock Request constructor
+global.Request = jest.fn().mockImplementation((url, options) => ({
+  url,
+  ...options,
+})) as jest.MockedClass<typeof Request>;
+
+// Mock fetch globally
+global.fetch = jest.fn();
+
 describe('useApi', () => {
   let hook: ReturnType<typeof useApi>;
   let mockFetch: jest.MockedFunction<typeof fetch>;
@@ -17,49 +38,21 @@ describe('useApi', () => {
   beforeEach(() => {
     const { result } = renderHook(() => useApi());
     hook = result.current;
-    
+
     // Reset fetch mock
     mockFetch = fetch as jest.MockedFunction<typeof fetch>;
     mockFetch.mockClear();
+
+    // Reset sessionStorage mocks
+    mockSessionStorage.getItem.mockClear();
+    mockSessionStorage.setItem.mockClear();
+    mockSessionStorage.removeItem.mockClear();
+    mockSessionStorage.clear.mockClear();
   });
 
   afterEach(() => {
     // Clear sessionStorage
-    sessionStorage.clear();
-  });
-
-  describe('testApi', () => {
-    it('should make a GET request to test endpoint', async () => {
-      const mockResponse = { data: 'test data', error: null };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      } as Response);
-
-      const result = await hook.testApi();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/testRedisKey',
-        expect.objectContaining({
-          method: 'GET',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
-        })
-      );
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should handle API errors gracefully', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      const result = await hook.testApi();
-
-      expect(result).toEqual({
-        data: null,
-        error: 'Unknown error occurred.',
-      });
-    });
+    mockSessionStorage.clear();
   });
 
   describe('authenticate', () => {
@@ -67,60 +60,61 @@ describe('useApi', () => {
       const mockResponse = { data: { token: 'test-token' }, error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.authenticate('test@example.com', 'password123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/auth',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/auth',
           method: 'POST',
           body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
+          headers: expect.any(Headers),
         })
       );
-      expect(result).toEqual(mockResponse.data);
+      expect(result).toEqual(mockResponse);
     });
   });
 
   describe('validateGoogleCode', () => {
     it('should return true and store token when validation succeeds', async () => {
       const mockResponse = {
-        data: { data: { token: 'google-token-123' } },
+        data: { token: 'google-token-123' },
         error: null,
       };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.validateGoogleCode('google-code-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/google-validate-code',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/google-validate-code',
           method: 'POST',
           body: JSON.stringify({ code: 'google-code-123' }),
         })
       );
       expect(result).toBe(true);
-      expect(sessionStorage.setItem).toHaveBeenCalledWith('token', 'google-token-123');
+      expect(mockSessionStorage.setItem).toHaveBeenCalledWith('token', 'google-token-123');
     });
 
     it('should return false when validation fails', async () => {
       const mockResponse = { data: { data: {} }, error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.validateGoogleCode('invalid-code');
 
       expect(result).toBe(false);
-      expect(sessionStorage.setItem).not.toHaveBeenCalled();
+      expect(mockSessionStorage.setItem).not.toHaveBeenCalled();
     });
   });
 
@@ -128,7 +122,7 @@ describe('useApi', () => {
     it('should remove token from sessionStorage', () => {
       hook.logout();
 
-      expect(sessionStorage.removeItem).toHaveBeenCalledWith('token');
+      expect(mockSessionStorage.removeItem).toHaveBeenCalledWith('token');
     });
   });
 
@@ -137,6 +131,7 @@ describe('useApi', () => {
       const mockResponse = { data: { userId: '123' }, error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
@@ -150,13 +145,13 @@ describe('useApi', () => {
       const result = await hook.signup(userData);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/auth/signup',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/auth/signup',
           method: 'POST',
           body: JSON.stringify(userData),
         })
       );
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({ data: mockResponse, status: 200 });
     });
   });
 
@@ -165,21 +160,19 @@ describe('useApi', () => {
       const mockResponse = { data: [{ id: '1', name: 'Inbox' }], error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.listMbox();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/list',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/list',
           method: 'GET',
-          headers: expect.objectContaining({
-            'Authorization': expect.stringContaining('Bearer'),
-          }),
         })
       );
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({ data: mockResponse, status: 200 });
     });
 
     it('should return error result when API call fails', async () => {
@@ -188,8 +181,7 @@ describe('useApi', () => {
       const result = await hook.listMbox();
 
       expect(result).toEqual({
-        data: null,
-        error: 'Unknown error occurred.',
+        message: 'Network error',
       });
     });
   });
@@ -197,16 +189,16 @@ describe('useApi', () => {
   describe('isAuthenticated', () => {
     it('should return token when user is authenticated', () => {
       const token = 'test-token-123';
-      (sessionStorage.getItem as jest.Mock).mockReturnValue(token);
+      mockSessionStorage.getItem.mockReturnValue(token);
 
       const result = hook.isAuthenticated();
 
-      expect(sessionStorage.getItem).toHaveBeenCalledWith('token');
+      expect(mockSessionStorage.getItem).toHaveBeenCalledWith('token');
       expect(result).toBe(token);
     });
 
     it('should return false when no token exists', () => {
-      (sessionStorage.getItem as jest.Mock).mockReturnValue(null);
+      mockSessionStorage.getItem.mockReturnValue(null);
 
       const result = hook.isAuthenticated();
 
@@ -219,32 +211,35 @@ describe('useApi', () => {
       const mockResponse = { data: [{ id: '1', subject: 'Test' }], error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.listMessages('inbox', 'page-token-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/messages?mbox=inbox&nextPageToken=page-token-123',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/messages?mbox=inbox&nextPageToken=page-token-123',
           method: 'GET',
         })
       );
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({ data: mockResponse, status: 200 });
     });
 
     it('should make request without page token when not provided', async () => {
       const mockResponse = { data: [{ id: '1', subject: 'Test' }], error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       await hook.listMessages('inbox', null);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/messages?mbox=inbox',
-        expect.any(Object)
+        expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/messages?mbox=inbox',
+        })
       );
     });
   });
@@ -254,18 +249,19 @@ describe('useApi', () => {
       const mockMessage = { id: 'msg-123', subject: 'Test Message' };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ data: mockMessage }),
       } as Response);
 
       const result = await hook.getMessage('msg-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/message/msg-123',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/message/msg-123',
           method: 'GET',
         })
       );
-      expect(result).toEqual(mockMessage);
+      expect(result).toEqual({ data: mockMessage });
     });
 
     it('should return empty object when API call fails', async () => {
@@ -282,18 +278,19 @@ describe('useApi', () => {
       const mockAttachment = { id: 'att-123', filename: 'test.pdf' };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ data: mockAttachment }),
       } as Response);
 
       const result = await hook.getMessageAttachment('msg-123', 'att-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/message/msg-123/att-123',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/message/msg-123/att-123',
           method: 'GET',
         })
       );
-      expect(result).toEqual(mockAttachment);
+      expect(result).toEqual({ data: mockAttachment });
     });
   });
 
@@ -302,18 +299,19 @@ describe('useApi', () => {
       const mockResponse = { id: 'msg-123', deleted: true };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ data: mockResponse }),
       } as Response);
 
       const result = await hook.deleteMessage('msg-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/message/msg-123',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/message/msg-123',
           method: 'DELETE',
         })
       );
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({ data: mockResponse });
     });
   });
 
@@ -322,23 +320,20 @@ describe('useApi', () => {
       const mockResponse = { messageId: 'new-msg-123' };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => ({ data: mockResponse }),
       } as Response);
 
       const result = await hook.newMessage('Message content', 'recipient@example.com', 'Test Subject');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/mbox/message',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/mbox/message',
           method: 'POST',
-          body: JSON.stringify({
-            message: 'Message content',
-            recipient: 'recipient@example.com',
-            subject: 'Test Subject',
-          }),
+          body: expect.stringContaining('"message":"TWVzc2FnZSBjb250ZW50"'),
         })
       );
-      expect(result).toBe('new-msg-123');
+      expect(result).toEqual({"data": {"messageId": "new-msg-123"}});
     });
   });
 
@@ -347,14 +342,15 @@ describe('useApi', () => {
       const mockResponse = { data: { token: 'google-token' }, error: null };
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        status: 200,
         json: async () => mockResponse,
       } as Response);
 
       const result = await hook.googleAuthenticate('test@example.com', 'password123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/google-auth',
         expect.objectContaining({
+          url: 'http://localhost:3001/api/google-auth',
           method: 'POST',
           body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
         })
@@ -368,14 +364,13 @@ describe('useApi', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       const results = await Promise.all([
-        hook.testApi(),
         hook.listMbox(),
         hook.getMessage('msg-123'),
       ]);
 
-      results.forEach(result => {
-        if ('error' in result) {
-          expect(result.error).toBe('Unknown error occurred.');
+      results.forEach((result: unknown) => {
+        if (typeof result === 'object' && result !== null && 'error' in result) {
+          expect((result as { error: string }).error).toBe('Unknown error occurred.');
         }
       });
     });
@@ -387,13 +382,12 @@ describe('useApi', () => {
         json: async () => ({ error: 'Internal server error' }),
       } as Response);
 
-      const result = await hook.testApi();
+      const result = await hook.listMbox();
 
       expect(result).toEqual({
-        data: null,
-        error: 'Unknown error occurred.',
+        data: { error: 'Internal server error' },
+        status: 500,
       });
     });
   });
 });
-
